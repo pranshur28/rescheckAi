@@ -17,6 +17,7 @@ export const ORIGINAL_DECISION_OPTIONS: Array<{
   { value: "throw_in_awarded", label: "Throw-in awarded" },
   { value: "goal_kick_awarded", label: "Goal kick awarded" },
   { value: "corner_kick_awarded", label: "Corner kick awarded" },
+  { value: "no_corner_kick_awarded", label: "No corner kick awarded" },
   { value: "free_kick_awarded", label: "Free kick awarded" },
   { value: "yellow_card_given", label: "Yellow card given" },
   { value: "red_card_given", label: "Red card given" },

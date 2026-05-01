@@ -27,6 +27,7 @@ const VALID_ORIGINAL_DECISIONS: ReadonlyArray<OriginalRefereeDecision> = [
   "throw_in_awarded",
   "goal_kick_awarded",
   "corner_kick_awarded",
+  "no_corner_kick_awarded",
   "free_kick_awarded",
   "yellow_card_given",
   "red_card_given",
