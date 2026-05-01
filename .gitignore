@@ -46,3 +46,6 @@ next-env.d.ts
 # test clip media (per PRD §12 copyright note)
 /test-clips/clips/*.mp4
 /test-clips/clips/*.mov
+
+# Claude Code local settings (do NOT commit)
+.claude/
