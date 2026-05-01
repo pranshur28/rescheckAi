@@ -51,18 +51,34 @@ export function validateChunkIds(
 }
 
 // Step 5 of §11.7: quoted_rule must appear verbatim (or as a clear substring)
-// within at least one retrieved chunk. We normalize whitespace because the
-// model often re-flows linebreaks.
+// within at least one retrieved chunk. The normalizer handles:
+//   - whitespace re-flow (model often joins or splits lines)
+//   - Unicode NFKC compatibility (ligatures like ﬁ → fi, half-width forms)
+//   - smart quotes ("/"/'/' → "/'), em/en dashes (–/— → -)
+//   - soft hyphens (U+00AD) which PDF extraction often leaves embedded
+// Without these normalizations, valid IFAB quotes routed through the PDF →
+// embedding → model copy path get false-flagged as fabricated.
+export function normalizeForQuoteMatch(text: string): string {
+  return text
+    .normalize("NFKC")
+    .replace(/­/g, "")
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 export function quotedRuleAppearsInChunks(quoted: string, chunks: RetrievedChunk[]): boolean {
   if (!quoted) return false;
-  const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
-  const needle = norm(quoted);
+  const needle = normalizeForQuoteMatch(quoted);
   if (needle.length < 20) {
     // Anything shorter than 20 normalized chars is too low-signal to count as
     // a verbatim citation — could match coincidentally.
     return false;
   }
-  return chunks.some((c) => norm(c.text).includes(needle));
+  return chunks.some((c) => normalizeForQuoteMatch(c.text).includes(needle));
 }
 
 // Main validation entry point. Takes the parsed model JSON + the call's

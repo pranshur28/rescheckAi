@@ -53,9 +53,27 @@ export function parseAnalyzeRequest(raw: unknown): ParseResult {
   if (typeof r.cloudinaryUrl !== "string" || r.cloudinaryUrl.length === 0) {
     return { ok: false, error: "cloudinaryUrl is required and must be a non-empty string" };
   }
-  // Lightweight URL sanity check; full validation happens at upload time.
-  if (!/^https?:\/\//.test(r.cloudinaryUrl)) {
-    return { ok: false, error: "cloudinaryUrl must be an http(s) URL" };
+  // Restrict to Cloudinary CDN hosts. Without this, the analyze function
+  // becomes a generic SSRF-style "fetch arbitrary URL and feed to Gemini"
+  // primitive. Cloudinary serves video from res.cloudinary.com (and the
+  // legacy cloudinary.com domain), both of which we accept.
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(r.cloudinaryUrl);
+  } catch {
+    return { ok: false, error: "cloudinaryUrl is not a valid URL" };
+  }
+  if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+    return { ok: false, error: "cloudinaryUrl must use http or https" };
+  }
+  const host = parsedUrl.hostname.toLowerCase();
+  const isCloudinary =
+    host === "res.cloudinary.com" ||
+    host.endsWith(".res.cloudinary.com") ||
+    host === "cloudinary.com" ||
+    host.endsWith(".cloudinary.com");
+  if (!isCloudinary) {
+    return { ok: false, error: "cloudinaryUrl must be a Cloudinary CDN URL" };
   }
 
   if (typeof r.originalDecision !== "string" ||

@@ -23,7 +23,7 @@ export async function retrieve(
   const topK = opts.topK ?? 5;
 
   if (opts.forceFallback) {
-    return retrieveFromFallback(lawNumber, topK);
+    return retrieveFromFallback(lawNumber, topK, queryText);
   }
 
   try {
@@ -32,7 +32,7 @@ export async function retrieve(
     console.warn(
       `[retrieval] Vertex failed for ${lawNumber}, using fallback. Reason: ${(err as Error).message}`,
     );
-    return retrieveFromFallback(lawNumber, topK);
+    return retrieveFromFallback(lawNumber, topK, queryText);
   }
 }
 

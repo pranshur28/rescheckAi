@@ -100,6 +100,11 @@ export async function retrieveFromVertex(
   if (!tokenResp) throw new Error("Failed to obtain Vertex access token");
 
   const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${project}/locations/${location}:retrieveContexts`;
+  // Body shape verified against
+  //   https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/rag-api-v1
+  // - vertex_rag_store is a TOP-LEVEL sibling of query (not nested in query)
+  // - field names are snake_case in the v1 REST body
+  // - top_k goes in query.rag_retrieval_config.top_k
   const body = {
     vertex_rag_store: {
       rag_resources: [
@@ -111,8 +116,6 @@ export async function retrieveFromVertex(
     },
     query: {
       text: queryText,
-      // top_k goes in rag_retrieval_config in some versions of the API.
-      // We send it both ways to be safe; unknown fields are ignored.
       rag_retrieval_config: { top_k: topK },
     },
   };

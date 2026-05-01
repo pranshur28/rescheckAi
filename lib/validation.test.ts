@@ -7,6 +7,7 @@ import {
   tryParseModelJson,
   validateChunkIds,
   quotedRuleAppearsInChunks,
+  normalizeForQuoteMatch,
   applyValidation,
   looksLikeVerdictResponse,
   shortCircuitInconclusive,
@@ -93,6 +94,40 @@ test("quotedRuleAppearsInChunks rejects fabricated long quotes", () => {
     sampleChunks,
   );
   assert.equal(found, false);
+});
+
+test("normalizeForQuoteMatch handles smart quotes and em-dashes", () => {
+  const a = normalizeForQuoteMatch("“interfering” — active play");
+  const b = normalizeForQuoteMatch("\"interfering\" - active play");
+  assert.equal(a, b);
+});
+
+test("normalizeForQuoteMatch strips soft hyphens (PDF artifact)", () => {
+  const norm = normalizeForQuoteMatch("inter­fering with play");
+  assert.equal(norm, "interfering with play");
+});
+
+test("normalizeForQuoteMatch NFKC-normalizes ligatures", () => {
+  // The "ﬁ" (U+FB01) ligature should normalize to "fi"
+  const norm = normalizeForQuoteMatch("ﬁnal pass");
+  assert.equal(norm, "final pass");
+});
+
+test("quotedRuleAppearsInChunks tolerates smart-quote rewrites", () => {
+  const chunksWithSmartQuote: RetrievedChunk[] = [
+    {
+      id: "x",
+      law_number: "Law 12",
+      law_title: "Fouls",
+      section: "Misconduct",
+      text: "The referee may caution a player who shows “dissent by word or action” toward an official.",
+    },
+  ];
+  const found = quotedRuleAppearsInChunks(
+    'shows "dissent by word or action" toward an official',
+    chunksWithSmartQuote,
+  );
+  assert.equal(found, true);
 });
 
 function baseGoodResponse(): VerdictResponse {

@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "node --test \"lib/**/*.test.ts\"",
-    "spike:gemini-video": "node scripts/spike/gemini-video.ts"
+    "test": "tsx --test \"lib/**/*.test.ts\"",
+    "spike:gemini-video": "tsx scripts/spike/gemini-video.ts"
   },
   "dependencies": {
     "@google/genai": "^1.0.0",
@@ -25,6 +25,7 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.14",
+    "tsx": "^4.21.0",
     "typescript": "^5.6.3"
   },
   "engines": {

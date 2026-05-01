@@ -5,7 +5,11 @@
 import { GoogleGenAI } from "@google/genai";
 
 const POLL_INTERVAL_MS = 2_000;
-const POLL_TIMEOUT_MS = 90_000;
+// Route maxDuration is 60s. Budget: ~30s for upload+poll, ~30s for Pass 1 +
+// retrieval + Pass 2. If a clip takes longer than 30s to process, we'd rather
+// fail fast and fall back to a cached demo response than starve the rest of
+// the pipeline.
+const POLL_TIMEOUT_MS = 30_000;
 
 export interface UploadedClip {
   name: string;

@@ -31,18 +31,56 @@ function loadFallback(): FallbackRecord[] {
   return cache;
 }
 
-export function retrieveFromFallback(lawNumber: string, k: number): RetrievalResult {
+// Tokenize a query string into lowercased word terms ≥3 chars. We strip
+// stopwords because "and", "the", "of" overlap with everything in the rules
+// text and would flatten the score distribution.
+const STOPWORDS = new Set([
+  "the", "and", "for", "with", "from", "that", "this", "any", "all", "are",
+  "was", "were", "has", "have", "had", "but", "not", "into", "out", "off",
+  "over", "under", "when", "while", "must", "should", "would", "could",
+]);
+
+function tokenizeQuery(q: string): string[] {
+  return q
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length >= 3 && !STOPWORDS.has(t));
+}
+
+function scoreRecord(record: FallbackRecord, terms: string[]): number {
+  if (terms.length === 0) return 0;
+  const haystack = `${record.section} ${record.text}`.toLowerCase();
+  let score = 0;
+  for (const term of terms) {
+    if (haystack.includes(term)) score += 1;
+  }
+  return score;
+}
+
+export function retrieveFromFallback(
+  lawNumber: string,
+  k: number,
+  queryText = "",
+): RetrievalResult {
   const records = loadFallback();
-  const matches: RetrievedChunk[] = records
-    .filter((r) => r.law_number === lawNumber)
-    .slice(0, k)
-    .map((r) => ({
-      id: r.id,
-      law_number: r.law_number,
-      law_title: r.law_title,
-      section: r.section,
-      text: r.text,
-    }));
+  const candidates = records.filter((r) => r.law_number === lawNumber);
+  const terms = tokenizeQuery(queryText);
+
+  // Score by keyword overlap; preserve document order on ties.
+  const scored = candidates.map((r, idx) => ({
+    record: r,
+    score: scoreRecord(r, terms),
+    idx,
+  }));
+  scored.sort((a, b) => b.score - a.score || a.idx - b.idx);
+
+  const matches: RetrievedChunk[] = scored.slice(0, k).map(({ record }) => ({
+    id: record.id,
+    law_number: record.law_number,
+    law_title: record.law_title,
+    section: record.section,
+    text: record.text,
+  }));
   return { source: "fallback", chunks: matches };
 }
 
