@@ -6,7 +6,7 @@ RefCheck AI is a rule-grounded second-review assistant for soccer referee decisi
 
 Built for the **GDG BorderHack 2026 Sponsored Challenge**.
 
-**Live app:** https://refcheckai.netlify.app
+**Live app:** https://refcheck-ai-lovat.vercel.app
 
 ## What it does
 
@@ -41,7 +41,7 @@ Out of scope (rule-based but not video-reviewable from a 30-second clip): Laws 1
 ```
 ┌────────┐         ┌────────────────┐         ┌──────────────┐
 │ Client │ ──POST─▶│ /api/analyze   │         │ Cloudinary   │
-└────────┘         │ (Netlify Func) │ ◀──URL──│ (video host) │
+└────────┘         │ (Vercel route) │ ◀──URL──│ (video host) │
    ▲               └───────┬────────┘         └──────────────┘
    │                       │
    │             ┌─────────┴──────────┐
@@ -169,7 +169,7 @@ test-clips/
 ## Tech stack
 
 - **Frontend** — Next.js 15 (App Router), React 19, Tailwind, `next-cloudinary`
-- **Server** — Netlify Functions (TypeScript), Node 20
+- **Server** — Vercel Functions (TypeScript), Node 20
 - **AI** — Gemini 2.5 multimodal via `@google/genai`, two-pass flow
 - **Retrieval** — Vertex AI RAG Engine (primary), keyword retrieval over local JSON (fallback)
 - **Storage** — Cloudinary (clip hosting), GCS (per-law PDF source for Vertex)
