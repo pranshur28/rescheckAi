@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"lib/**/*.test.ts\"",
+    "eval": "tsx scripts/eval/run-eval.ts",
     "spike:gemini-video": "tsx scripts/spike/gemini-video.ts"
   },
   "dependencies": {

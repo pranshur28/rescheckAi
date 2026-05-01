@@ -5,7 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 import type { AnalyzeRequest } from "./request.ts";
 import { INCIDENT_TO_LAW } from "./types.ts";
 import type { IncidentType, VerdictResponse } from "./types.ts";
-import { uploadCloudinaryToGemini, deleteUploaded } from "./gemini/upload.ts";
+import { uploadCloudinaryToGemini, uploadLocalFileToGemini, deleteUploaded } from "./gemini/upload.ts";
 import { runPass1 } from "./gemini/pass1.ts";
 import { runPass2 } from "./gemini/pass2.ts";
 import { retrieve } from "./retrieval/index.ts";
@@ -23,8 +23,14 @@ export async function analyze(req: AnalyzeRequest): Promise<AnalyzeOutcome> {
   if (!apiKey) throw new Error("GEMINI_API_KEY not set");
   const ai = new GoogleGenAI({ apiKey });
 
-  // (1) Upload Cloudinary clip to Gemini File API. Reused across both passes.
-  const clip = await uploadCloudinaryToGemini(ai, req.cloudinaryUrl);
+  // (1) Upload the clip to Gemini File API. Local eval clips can skip Cloudinary.
+  const clip = req.localClipPath
+    ? await uploadLocalFileToGemini(ai, req.localClipPath)
+    : req.cloudinaryUrl
+    ? await uploadCloudinaryToGemini(ai, req.cloudinaryUrl)
+    : (() => {
+        throw new Error("analyze requires either localClipPath or cloudinaryUrl");
+      })();
 
   try {
     // (2) Pass 1 (skipped if user supplied a manual incident type).

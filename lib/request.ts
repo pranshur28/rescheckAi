@@ -34,7 +34,8 @@ const VALID_ORIGINAL_DECISIONS: ReadonlyArray<OriginalRefereeDecision> = [
 ];
 
 export interface AnalyzeRequest {
-  cloudinaryUrl: string;
+  cloudinaryUrl?: string;
+  localClipPath?: string;
   originalDecision: OriginalRefereeDecision;
   incidentType: IncidentType | "auto_detect";
   promptVersion?: string;
