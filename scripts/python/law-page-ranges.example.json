@@ -1,0 +1,11 @@
+{
+  "_comment": "1-indexed inclusive page ranges in the IFAB Laws of the Game PDF. Open the PDF, find each law's first and last page, fill in below. The IFAB PDF table-of-contents lists each law's start page; the end page is the page before the next law (or the appendix).",
+  "Law 9": [0, 0],
+  "Law 11": [0, 0],
+  "Law 12": [0, 0],
+  "Law 13": [0, 0],
+  "Law 14": [0, 0],
+  "Law 15": [0, 0],
+  "Law 16": [0, 0],
+  "Law 17": [0, 0]
+}
