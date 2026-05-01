@@ -19,6 +19,7 @@
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { GoogleGenAI } from "@google/genai";
 
 import { analyzeUploadedClip } from "../../lib/analyze.ts";
@@ -74,6 +75,20 @@ interface EvalErrorResult {
 const GROUND_TRUTH_PATH = join(process.cwd(), "test-clips", "ground-truth.json");
 const CLIPS_DIR = join(process.cwd(), "test-clips", "clips");
 
+function isGroundingFailureFlag(flag: string): boolean {
+  return (
+    flag === "quoted-rule-not-in-retrieved-chunks" ||
+    flag.startsWith("hallucinated-chunk-ids:") ||
+    flag === "override:rule_applied-must-be-null-when-retrieval-source-is-none"
+  );
+}
+
+export function citationGrounded(chunkIds: string[], flags: string[]): boolean {
+  // PRD §12 defines retrieval grounding as a quote that survived validation,
+  // not just the presence of chunk ids in the model output.
+  return chunkIds.length > 0 && !flags.some(isGroundingFailureFlag);
+}
+
 function parseArgs(argv: string[]): { only: Set<string> | null } {
   const only = new Set<string>();
   for (let i = 0; i < argv.length; i++) {
@@ -124,6 +139,7 @@ async function evalOne(
     const r = outcome.response;
     const gotLaw = r.rule_applied?.law_number ?? "";
     const chunkIds = r.rule_applied?.retrieved_chunk_ids ?? [];
+    const retrievalGrounded = citationGrounded(chunkIds, outcome.flags);
 
     return {
       id: entry.id,
@@ -142,7 +158,7 @@ async function evalOne(
       verdictCorrect: r.verdict === entry.expected_verdict,
       lawCorrect: gotLaw === entry.expected_law,
       incidentCorrect: r.detected_incident_type === entry.expected_incident_type,
-      retrievalGrounded: chunkIds.length > 0,
+      retrievalGrounded,
       flags: outcome.flags,
       durationMs: Date.now() - start,
     };
@@ -264,7 +280,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
