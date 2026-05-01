@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# A PR with the same head ref shouldn't pile up jobs — cancel the older run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: typecheck · test · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        # next build runs lint + the same TS checks our typecheck step does, plus
+        # produces a deployable artifact. Env vars below are placeholders so the
+        # build doesn't bail on missing secrets — the Netlify deploy uses real
+        # values via dashboard env.
+        env:
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ci-placeholder
+          NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ci-placeholder
+        run: npm run build
