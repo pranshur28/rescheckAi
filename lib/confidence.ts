@@ -1,4 +1,4 @@
-import type { Confidence, EvidenceQuality, ReviewMode, OriginalRefereeDecision } from "./types";
+import type { Confidence, EvidenceQuality, ReviewMode, OriginalRefereeDecision } from "./types.ts";
 
 // PRD §11.5: confidence is derived from evidence quality, NOT the model's self-rating.
 // The model's `confidence` field is overwritten by this function before returning.
