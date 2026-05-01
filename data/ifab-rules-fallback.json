@@ -1,0 +1,296 @@
+[
+  {
+    "id": "law-09-ball-out-of-play-boundary",
+    "law_number": "Law 9",
+    "law_title": "The Ball in and out of Play",
+    "section": "Ball out of play",
+    "text": "it has wholly passed over the goal line or touchline on the ground or in the air"
+  },
+  {
+    "id": "law-09-ball-out-of-play-referee-stoppage",
+    "law_number": "Law 9",
+    "law_title": "The Ball in and out of Play",
+    "section": "Ball out of play",
+    "text": "play has been stopped by the referee"
+  },
+  {
+    "id": "law-09-ball-out-of-play-match-official",
+    "law_number": "Law 9",
+    "law_title": "The Ball in and out of Play",
+    "section": "Ball out of play",
+    "text": "it touches a match official, remains on the field of play and: • a team starts a promising attack or • the ball goes directly into the goal or • the team in possession of the ball changes In all these cases, play is restarted with a dropped ball."
+  },
+  {
+    "id": "law-09-ball-in-play-general",
+    "law_number": "Law 9",
+    "law_title": "The Ball in and out of Play",
+    "section": "Ball in play",
+    "text": "The ball is in play at all other times when it touches a match official and when it rebounds off a goalpost, crossbar or corner flagpost and remains on the field of play."
+  },
+  {
+    "id": "law-11-offside-position-definition",
+    "law_number": "Law 11",
+    "law_title": "Offside",
+    "section": "Offside position",
+    "text": "It is not an offence to be in an offside position. A player is in an offside position if: • any part of the head, body or feet is in the opponents’ half ( excluding the halfway line ) and • any part of the head, body or feet is nearer to the opponents’ goal line than both the ball and the second-last opponent"
+  },
+  {
+    "id": "law-11-offside-position-hands-arms-level",
+    "law_number": "Law 11",
+    "law_title": "Offside",
+    "section": "Offside position",
+    "text": "The hands and arms of all players, including the goalkeepers, are not considered. For the purposes of determining offside, the upper boundary of the arm is in line with the bottom of the armpit. A player is not in an offside position if level with the: • second-last opponent or • last two opponents"
+  },
+  {
+    "id": "law-11-offside-offence-interfering",
+    "law_number": "Law 11",
+    "law_title": "Offside",
+    "section": "Offside offence",
+    "text": "A player in an offside position at the moment the ball is played or touched* by a team-mate is only penalised on becoming involved in active play by: • interfering with play by playing or touching a ball passed or touched by a team-mate or • interfering with an opponent by: • preventing an opponent from playing or being able to play the ball by clearly obstructing the opponent’s line of vision or • challenging an opponent for the ball or *The first point of contact of the ‘play’ or ‘touch’ of the ball should be used ; however, when the ball is thrown by the goalkeeper, the last point of contact should be used. • clearly attempting to play a ball which is close when this action impacts on an opponent or • making an obvious action which clearly impacts on the ability of an opponent to play the ball or"
+  },
+  {
+    "id": "law-11-offside-offence-gaining-advantage",
+    "law_number": "Law 11",
+    "law_title": "Offside",
+    "section": "Offside offence",
+    "text": "gaining an advantage by playing the ball or interfering with an opponent when it has: • rebounded or been deflected off the goalpost, crossbar, match official or an opponent • been deliberately saved by any opponent"
+  },
+  {
+    "id": "law-11-no-offence-restarts",
+    "law_number": "Law 11",
+    "law_title": "Offside",
+    "section": "No offence",
+    "text": "There is no offside offence if a player receives the ball directly from: • a goal kick • a throw-in • a corner kick"
+  },
+  {
+    "id": "law-11-offences-and-sanctions-indirect-free-kick",
+    "law_number": "Law 11",
+    "law_title": "Offside",
+    "section": "Offences and sanctions",
+    "text": "If an offside offence occurs, the referee awards an indirect free kick where the offence occurred, including if it is in the player’s own half of the field of play."
+  },
+  {
+    "id": "law-12-direct-free-kick-careless-reckless-excessive",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Direct free kick",
+    "text": "A direct free kick is awarded if a player commits any of the following offences against an opponent in a manner considered by the referee to be careless, reckless or using excessive force: • charges • jumps at • kicks or attempts to kick • pushes • strikes or attempts to strike (including head-butt) • tackles or challenges • trips or attempts to trip If an offence involves contact, it is penalised by a direct free kick. • Careless is when a player shows a lack of attention or consideration when making a challenge or acts without precaution. No disciplinary sanction is needed • Reckless is when a player acts with disregard to the danger to, or consequences for, an opponent and must be cautioned • Using excessive force is when a player exceeds the necessary use of force and/or endangers the safety of an opponent and must be sent off"
+  },
+  {
+    "id": "law-12-direct-free-kick-contact-offences",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Direct free kick",
+    "text": "A direct free kick is awarded if a player commits any of the following offences: • a handball offence (except for the goalkeeper within their penalty area) • holds an opponent • impedes an opponent with contact • bites or spits at someone on the team lists or a match official • throws an object at the ball, an opponent or a match official, or makes contact with the ball with a held object"
+  },
+  {
+    "id": "law-12-handling-the-ball",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Handling the ball",
+    "text": "For the purposes of determining handball offences, the upper boundary of the arm is in line with the bottom of the armpit. Not every touch of a player’s hand/arm with the ball is an offence. It is an offence if a player: • deliberately touches the ball with their hand/arm, for example moving the hand/arm towards the ball • touches the ball with their hand/arm when it has made their body unnaturally bigger. A player is considered to have made their body unnaturally bigger when the position of their hand/arm is not a consequence of, or justifiable by, the player’s body movement for that specific situation. By having their hand/arm in such a position, the player takes a risk of their hand/arm being hit by the ball and being penalised • scores in the opponents’ goal: • directly from their hand/arm, even if accidental, including by the goalkeeper • immediately after the ball has touched their hand/arm, even if accidental"
+  },
+  {
+    "id": "law-12-goalkeeper-handling-restrictions",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Handling the ball",
+    "text": "The goalkeeper has the same restrictions on handling the ball as any other player outside the penalty area. If the goalkeeper handles the ball inside their penalty area when not permitted to do so, an indirect free kick is awarded but there is no disciplinary sanction. However, if the offence is playing the ball a second time (with or without the hand/arm) after a restart before it touches another player, the goalkeeper must be sanctioned if the offence stops a promising attack or denies an opponent or the opposing team a goal or an obvious goal-scoring opportunity."
+  },
+  {
+    "id": "law-12-indirect-free-kick",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Indirect free kick",
+    "text": "An indirect free kick is awarded if a player: • plays in a dangerous manner • impedes the progress of an opponent without any contact being made • is guilty of dissent, using offensive, insulting or abusive language and/or action(s) or other verbal offences • prevents the goalkeeper from releasing the ball from the hands or kicks or attempts to kick the ball when the goalkeeper is in the process of releasing it • initiates a deliberate trick for the ball to be passed (including from a free kick or goal kick) to the goalkeeper with the head, chest, knee etc. to circumvent the Law, whether or not the goalkeeper touches the ball with the hands; the goalkeeper is penalised if responsible for initiating the deliberate trick • commits any other offence, not mentioned in the Laws, for which play is stopped to caution or send off a player"
+  },
+  {
+    "id": "law-12-ifk-gk-double-touch",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Indirect free kick – Goalkeeper offences",
+    "text": "An indirect free kick is awarded if a goalkeeper, inside their penalty area, touches the ball with the hand/arm after releasing it and before it has touched another player."
+  },
+  {
+    "id": "law-12-ifk-gk-backpass",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Indirect free kick – Goalkeeper offences",
+    "text": "An indirect free kick is awarded if a goalkeeper, inside their penalty area, touches the ball with the hand/arm after it has been deliberately kicked to the goalkeeper by a team-mate, or after receiving it directly from a throw-in taken by a team-mate — unless the goalkeeper has clearly kicked or attempted to kick the ball to release it into play."
+  },
+  {
+    "id": "law-12-ifk-dangerous-play",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Indirect free kick – Playing in a dangerous manner",
+    "text": "An indirect free kick is awarded for playing in a dangerous manner. Playing in a dangerous manner is any action that, while trying to play the ball, threatens injury to someone (including the player themself) and includes preventing a nearby opponent from playing the ball for fear of injury. A scissors or bicycle kick is permissible provided that it is not dangerous to an opponent."
+  },
+  {
+    "id": "law-12-ifk-impeding",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Indirect free kick – Impeding the progress of an opponent without contact",
+    "text": "An indirect free kick is awarded for impeding the progress of an opponent without contact. Impeding means moving into the opponent's path to obstruct, block, slow down or force a change of direction when the ball is not within playing distance of either player. All players have a right to their position on the field of play; being in the way of an opponent is not the same as moving into the way of an opponent."
+  },
+  {
+    "id": "law-12-ifk-shielding-charging",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Indirect free kick – Shielding and fair charging",
+    "text": "A player may shield the ball by taking a position between an opponent and the ball if the ball is within playing distance and the opponent is not held off with the arms or body. If the ball is within playing distance, the player may be fairly charged by an opponent."
+  },
+  {
+    "id": "law-12-corner-kick-gk-eight-seconds",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Corner kick – Goalkeeper time limit",
+    "text": "A corner kick is awarded if a goalkeeper, inside their penalty area, controls the ball with their hand(s)/arm(s) for more than eight seconds before releasing it."
+  },
+  {
+    "id": "law-12-cautionable-offences",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Cautionable offences",
+    "text": "A player is cautioned if guilty of: • delaying the restart of play • dissent by word or action • entering, re-entering or deliberately leaving the field of play without the referee’s permission • failing to respect the required distance when play is restarted with a dropped ball, corner kick, free kick or throw-in • persistent offences (no specific number or pattern of offences constitutes ‘persistent ’) • unsporting behaviour • entering the referee review area (RRA) • excessively using the ‘review’ (TV screen) signal A substitute or substituted player is cautioned if guilty of: • delaying the restart of play • dissent by word or action • entering or re-entering the field of play without the referee’s permission • unsporting behaviour • entering the referee review area (RRA) • excessively using the ‘review’ (TV screen) signal Where two separate cautionable offences are committed (even in close proximity), they should result in two cautions, for example if a player enters the field of play without the required permission and commits a reckless tackle or stops a promising attack with a foul/handball, etc."
+  },
+  {
+    "id": "law-12-sending-off-offences",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Sending-off offences",
+    "text": "A player, substitute or substituted player who commits any of the following offences is sent off: • denying the opposing team a goal or an obvious goal-scoring opportunity by committing a deliberate handball offence (except a goalkeeper within their penalty area) • denying the opposing team a goal or an obvious goal-scoring opportunity by committing a non-deliberate handball offence outside their own penalty area • denying a goal or an obvious goal-scoring opportunity to an opponent whose overall movement is towards the offender’s goal by an offence punishable by a free kick (unless as outlined below) • serious foul play • biting or spitting at someone • violent conduct • using offensive, insulting or abusive language and/or action(s) • receiving a second caution in the same match • entering the video operation room (VOR) A player, substitute or substituted player who has been sent off must leave the vicinity of the field of play and the technical area."
+  },
+  {
+    "id": "law-13-types-of-free-kick",
+    "law_number": "Law 13",
+    "law_title": "Free Kicks",
+    "section": "Types of free kick",
+    "text": "Direct and indirect free kicks are awarded to the opposing team of a player, substitute, substituted or sent-off player, or team official guilty of an offence."
+  },
+  {
+    "id": "law-13-indirect-free-kick-signal",
+    "law_number": "Law 13",
+    "law_title": "Free Kicks",
+    "section": "Types of free kick",
+    "text": "The referee indicates an indirect free kick by raising the arm above the head; this signal is maintained until the kick has been taken and the ball touches another player, goes out of play or it is clear that a goal cannot be scored directly. An indirect free kick must be retaken if the referee fails to signal that the kick is indirect and the ball is kicked directly into the goal."
+  },
+  {
+    "id": "law-13-ball-enters-the-goal",
+    "law_number": "Law 13",
+    "law_title": "Free Kicks",
+    "section": "Ball enters the goal",
+    "text": "if a direct free kick is kicked directly into the opponents’ goal, a goal is awarded • if an indirect free kick is kicked directly into the opponents’ goal, a goal kick is awarded • if a direct or indirect free kick is kicked directly into the team’s own goal, a corner kick is awarded"
+  },
+  {
+    "id": "law-13-procedure-ball-and-opponents",
+    "law_number": "Law 13",
+    "law_title": "Free Kicks",
+    "section": "Procedure",
+    "text": "The ball: • must be stationary and the kicker must not touch the ball again until it has touched another player • is in play when it is kicked and clearly moves Until the ball is in play, all opponents must remain: • at least 9.15 m (10 yds) from the ball, unless they are on their own goal line between the goalposts • outside the penalty area for free kicks inside the opponents’ penalty area"
+  },
+  {
+    "id": "law-13-offences-and-sanctions",
+    "law_number": "Law 13",
+    "law_title": "Free Kicks",
+    "section": "Offences and sanctions",
+    "text": "If, when a free kick is taken, an opponent is closer to the ball than the required distance, the kick is retaken unless the advantage can be applied; but if a player takes a free kick quickly and an opponent who is less than 9.15 m (10 yds) from the ball intercepts it, the referee allows play to continue. However, an opponent who deliberately prevents a free kick being taken quickly must be cautioned for delaying the restart of play. If, when a free kick is taken, an attacking team player is less than 1 m (1 yd) from a ‘wall’ formed by three or more defending team players, an indirect free kick is awarded. If, when a free kick is taken by the defending team inside its penalty area, any opponents are inside the penalty area because they did not have time to leave, the referee allows play to continue. If an opponent who is in the penalty area when the free kick is taken, or enters the penalty area before the ball is in play, touches or challenges for the ball before it is in play, the free kick is retaken."
+  },
+  {
+    "id": "law-14-penalty-kick-award",
+    "law_number": "Law 14",
+    "law_title": "The Penalty Kick",
+    "section": "The Penalty Kick",
+    "text": "A penalty kick is awarded if a player commits a direct free kick offence inside their penalty area or off the field as part of play as outlined in Laws 12 and 13. A goal may be scored directly from a penalty kick."
+  },
+  {
+    "id": "law-14-procedure-ball-goalkeeper-players",
+    "law_number": "Law 14",
+    "law_title": "The Penalty Kick",
+    "section": "Procedure",
+    "text": "The ball must be stationary , with part of the ball touching or overhanging the centre of the penalty mark , and the goalposts, crossbar and goal net must not be moving. The player taking the penalty kick must be clearly identified. The defending goalkeeper must remain on the goal line, facing the kicker, between the goalposts, until the ball is kicked. The goalkeeper must not behave in a way that unfairly distracts the kicker, e.g. delay the taking of the kick or touch the goalposts, crossbar or goal net. The players other than the kicker and goalkeeper must be: • at least 9.15 m (10 yds) from the penalty mark • behind the penalty mark • inside the field of play • outside the penalty area"
+  },
+  {
+    "id": "law-14-procedure-kick-completion",
+    "law_number": "Law 14",
+    "law_title": "The Penalty Kick",
+    "section": "Procedure",
+    "text": "After the players have taken positions in accordance with this Law, the referee signals for the penalty kick to be taken. The player taking the penalty kick must kick the ball forward; backheeling is permitted provided the ball moves forward. When the ball is kicked, the defending goalkeeper must have at least part of one foot touching, in line with, or behind, the goal line. The ball is in play when it is kicked and clearly moves. The kicker must not play the ball again until it has touched another player. The penalty kick is completed when the ball stops moving, goes out of play or the referee stops play for any offence. Additional time is allowed for a penalty kick to be taken and completed at the end of each half of the match or extra time. When additional time is allowed, the penalty kick is completed when, after the kick has been taken, the ball stops moving, goes out of play, is played by any player (including the kicker) other than the defending goalkeeper, or the referee stops play for an offence by the kicker or the kicker’s team. If a defending team player (including the goalkeeper) commits an offence and the penalty is missed/saved, the penalty is retaken."
+  },
+  {
+    "id": "law-14-offences-before-ball-in-play",
+    "law_number": "Law 14",
+    "law_title": "The Penalty Kick",
+    "section": "Offences and sanctions",
+    "text": "If, before the ball is in play, one of the following occurs: • a team-mate of the player taking the penalty kick is penalised for encroachment only if: • the encroachment clearly impacted on the goalkeeper; or • the encroaching player plays the ball or challenges an opponent for the ball and then scores, attempts to score or creates a goal-scoring opportunity • a team-mate of the goalkeeper is penalised for encroachment only if: • the encroachment clearly impacted on the kicker; or • the encroaching player plays the ball or challenges an opponent for the ball and this prevents the opponents from scoring, attempting to score or creating a goal-scoring opportunity • the player taking the penalty kick or a team-mate offends: • if the ball enters the goal, the kick is retaken • if the ball does not enter the goal, the referee stops play and restarts with an indirect free kick except for the following when play will be stopped and restarted with an indirect free kick, regardless of whether or not a goal is scored: • a penalty kick is kicked backwards • a team-mate of the identified kicker takes the kick; the referee cautions the player who took the kick • feinting to kick the ball once the kicker has completed the run-up (feinting in the run-up is permitted); the referee cautions the kicker • the goalkeeper offends: • if the ball enters the goal, a goal is awarded • if the ball misses the goal or rebounds from the crossbar or goalpost(s), the kick is only retaken if the goalkeeper’s offence clearly impacted on the kicker • if the ball is prevented from entering the goal by the goalkeeper, the kick is retaken If the goalkeeper’s offence results in the kick being retaken, the goalkeeper is warned for the first offence in the game and cautioned for any subsequent offence(s) in the game • a team-mate of the goalkeeper offends: • if the ball enters the goal, a goal is awarded • if the ball does not enter the goal, the kick is retaken • a player of both teams offends, the kick is retaken unless a player commits a more serious offence (e.g. ‘illegal’ feinting) • both the goalkeeper and the kicker commit an offence at the same time, the kicker is cautioned and play restarts with an indirect free kick to the defending team"
+  },
+  {
+    "id": "law-15-throw-in-award",
+    "law_number": "Law 15",
+    "law_title": "The Throw-in",
+    "section": "The Throw-in",
+    "text": "A throw-in is awarded to the opponents of the player who last touched the ball when the whole of the ball passes over the touchline, on the ground or in the air. A goal cannot be scored directly from a throw-in: • if the ball enters the opponents’ goal – a goal kick is awarded • if the ball enters the thrower’s goal – a corner kick is awarded"
+  },
+  {
+    "id": "law-15-procedure",
+    "law_number": "Law 15",
+    "law_title": "The Throw-in",
+    "section": "Procedure",
+    "text": "At the moment of delivering the ball, the thrower must: • stand facing the field of play • have part of each foot on the touchline or on the ground outside the touchline • throw the ball with both hands from behind and over the head from the point where it left the field of play All opponents must stand at least 2 m (2 yds) from the point on the touchline where the throw-in is to be taken. The ball is in play when it enters the field of play. If the ball touches the ground before entering, the throw-in is retaken by the same team from the same position. If the throw-in is not taken correctly, it is retaken by the opposing team. If a player, while correctly taking a throw-in, deliberately throws the ball at an opponent in order to play the ball again but not in a careless or a reckless manner or using excessive force, the referee allows play to continue."
+  },
+  {
+    "id": "law-15-offences-and-sanctions",
+    "law_number": "Law 15",
+    "law_title": "The Throw-in",
+    "section": "Offences and sanctions",
+    "text": "If, after the ball is in play, the thrower touches the ball again before it has touched another player, an indirect free kick is awarded; if the thrower commits a handball offence: • a direct free kick is awarded • a penalty kick is awarded if the offence occurred inside the thrower’s penalty area unless the ball was handled by the defending team’s goalkeeper, in which case an indirect free kick is awarded An opponent who unfairly distracts or impedes the thrower ( including moving closer than 2 m ( 2 yds) to the place where the throw-in is to be taken ) is cautioned for unsporting behaviour, and if the throw-in has been taken, an indirect free kick is awarded ."
+  },
+  {
+    "id": "law-15-offences-any-other",
+    "law_number": "Law 15",
+    "law_title": "The Throw-in",
+    "section": "Offences and sanctions",
+    "text": "For any other offence, the throw-in is taken by a player of the opposing team."
+  },
+  {
+    "id": "law-16-goal-kick-award",
+    "law_number": "Law 16",
+    "law_title": "The Goal Kick",
+    "section": "The Goal Kick",
+    "text": "A goal kick is awarded when the whole of the ball passes over the goal line, on the ground or in the air, having last touched a player of the attacking team, and a goal is not scored (see also Laws 8, 10, 13 and 15) . A goal may be scored directly from a goal kick, but only against the opposing team; if the ball directly enters the kicker’s goal, a corner kick is awarded to the opponents."
+  },
+  {
+    "id": "law-16-procedure",
+    "law_number": "Law 16",
+    "law_title": "The Goal Kick",
+    "section": "Procedure",
+    "text": "The ball must be stationary and is kicked from any point within the goal area by a player of the defending team • The ball is in play when it is kicked and clearly moves • Opponents must be outside the penalty area until the ball is in play"
+  },
+  {
+    "id": "law-16-offences-and-sanctions",
+    "law_number": "Law 16",
+    "law_title": "The Goal Kick",
+    "section": "Offences and sanctions",
+    "text": "If, after the ball is in play, the kicker touches the ball again before it has touched another player, an indirect free kick is awarded; if the kicker commits a handball offence: • a direct free kick is awarded • a penalty kick is awarded if the offence occurred inside the kicker’s penalty area, unless the kicker was the goalkeeper, in which case an indirect free kick is awarded If, when a goal kick is taken, any opponents are inside the penalty area because they did not have time to leave, the referee allows play to continue. If an opponent who is in the penalty area when the goal kick is taken, or enters the penalty area before the ball is in play, touches or challenges for the ball before it is in play, the goal kick is retaken."
+  },
+  {
+    "id": "law-17-corner-kick-award",
+    "law_number": "Law 17",
+    "law_title": "The Corner Kick",
+    "section": "The Corner Kick",
+    "text": "A corner kick is awarded when the whole of the ball passes over the goal line, on the ground or in the air, having last touched a player of the defending team, and a goal is not scored (see also Laws 8, 12, 13, 15 and 16) . A goal may be scored directly from a corner kick, but only against the opposing team; if the ball directly enters the kicker’s goal, a corner kick is awarded to the opponents."
+  },
+  {
+    "id": "law-17-procedure",
+    "law_number": "Law 17",
+    "law_title": "The Corner Kick",
+    "section": "Procedure",
+    "text": "The ball must be placed in the corner area nearest to the point where the ball passed over the goal line or the goalkeeper’s position when penalised • The ball must be stationary and is kicked by a player of the attacking team • The ball is in play when it is kicked and clearly moves ; it does not need to leave the corner area • The corner flagpost must not be moved • Opponents must remain at least 9.15 m (10 yds) from the corner arc until the ball is in play"
+  },
+  {
+    "id": "law-17-offences-and-sanctions",
+    "law_number": "Law 17",
+    "law_title": "The Corner Kick",
+    "section": "Offences and sanctions",
+    "text": "If, after the ball is in play, the kicker touches the ball again before it has touched another player, an indirect free kick is awarded; if the kicker commits a handball offence: • a direct free kick is awarded • a penalty kick is awarded if the offence occurred inside the kicker’s penalty area, unless the kicker was the goalkeeper, in which case an indirect free kick is awarded If a player, while correctly taking a corner kick, deliberately kicks the ball at an opponent in order to play the ball again but not in a careless or reckless manner or using excessive force, the referee allows play to continue. For any other offence, the kick is retaken."
+  }
+]
