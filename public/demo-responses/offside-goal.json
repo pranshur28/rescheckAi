@@ -1,0 +1,40 @@
+{
+  "is_soccer_clip": true,
+  "detected_incident_type": "offside",
+  "original_referee_decision": "goal_allowed",
+  "review_mode": "call_review",
+  "verdict": "bad_call",
+  "confidence": "medium",
+  "key_moment_timestamp": "0:03",
+  "what_happened": "An attacker receives a through ball and finishes; at the moment the ball is played by the team-mate, the attacker's torso is past the second-last defender.",
+  "retrieval_source": "fallback",
+  "rule_applied": {
+    "law_number": "Law 11",
+    "law_title": "Offside",
+    "section": "Offside position",
+    "retrieved_chunk_ids": ["law-11-offside-position-definition", "law-11-offside-offence-interfering"],
+    "quoted_rule": "A player is in an offside position if any part of the head, body or feet is in the opponents' half (excluding the halfway line) and any part of the head, body or feet is nearer to the opponents' goal line than both the ball and the second-last opponent"
+  },
+  "reasoning": [
+    "The clip shows an attacker timing a run onto a through ball and scoring.",
+    "Law 11 places a player in an offside position when their torso is nearer the opponent's goal line than the second-last defender at the moment the ball is played by a team-mate.",
+    "Visible evidence: at the frame of the team-mate's pass, the attacker's body is clearly past the last defender's line.",
+    "Because the attacker subsequently played the ball, this constitutes interfering with play and is therefore an offside offence.",
+    "The original decision (goal allowed) does not match what the rule prescribes; the goal should have been disallowed for offside."
+  ],
+  "evidence_quality": {
+    "camera_angle": "partial",
+    "key_moment_visible": true,
+    "ball_visible_when_needed": true,
+    "players_visible_when_needed": true,
+    "field_lines_visible_when_needed": true,
+    "frame_rate_adequate": true,
+    "required_context_missing": [],
+    "issues": [
+      "Camera is on the attacking half but slightly off-axis from the offside line, so the offset is judged from torso position rather than a perfectly perpendicular reference."
+    ]
+  },
+  "review_limitations": [
+    "Without a true offside-line camera angle, certainty is medium rather than high — the offset is visible but not measurable in pixels."
+  ]
+}

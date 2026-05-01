@@ -1,0 +1,36 @@
+{
+  "is_soccer_clip": true,
+  "detected_incident_type": "foul",
+  "original_referee_decision": "penalty_awarded",
+  "review_mode": "call_review",
+  "verdict": "correct_call",
+  "confidence": "high",
+  "key_moment_timestamp": "0:04",
+  "what_happened": "A defender extends a leg into the path of a forward inside the penalty area, making leg-to-leg contact before any contact with the ball.",
+  "retrieval_source": "fallback",
+  "rule_applied": {
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Direct free kick",
+    "retrieved_chunk_ids": ["law-12-direct-free-kick-careless-reckless-excessive"],
+    "quoted_rule": "A direct free kick is awarded if a player commits any of the following offences against an opponent in a manner considered by the referee to be careless, reckless or using excessive force: charges, jumps at, kicks or attempts to kick, pushes, strikes or attempts to strike, tackles or challenges, trips or attempts to trip"
+  },
+  "reasoning": [
+    "The clip shows a tackle attempt by a defender against an attacking player inside the penalty area.",
+    "Law 12 lists trips and challenges committed carelessly or recklessly as direct-free-kick offences; in the penalty area this becomes a penalty.",
+    "Visible evidence: the defender's leading foot makes contact with the attacker's planted leg before any contact with the ball.",
+    "Comparing the visible contact to the rule, the challenge meets the careless threshold for a direct free kick.",
+    "The original decision (penalty awarded) is consistent with what the rule prescribes for this offence inside the penalty area."
+  ],
+  "evidence_quality": {
+    "camera_angle": "clear",
+    "key_moment_visible": true,
+    "ball_visible_when_needed": true,
+    "players_visible_when_needed": true,
+    "field_lines_visible_when_needed": true,
+    "frame_rate_adequate": true,
+    "required_context_missing": [],
+    "issues": []
+  },
+  "review_limitations": []
+}
