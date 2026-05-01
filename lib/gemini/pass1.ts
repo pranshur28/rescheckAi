@@ -5,6 +5,7 @@ import type { IncidentType } from "../types.ts";
 import type { UploadedClip } from "./upload.ts";
 import { pass1ClassificationPrompt } from "./prompts.ts";
 import { tryParseModelJson } from "../validation.ts";
+import { withRetry } from "./retry.ts";
 
 const MODEL = "gemini-2.5-flash";
 
@@ -33,13 +34,17 @@ export async function runPass1(
   ai: GoogleGenAI,
   clip: UploadedClip,
 ): Promise<Pass1Result> {
-  const response = await ai.models.generateContent({
-    model: MODEL,
-    contents: createUserContent([
-      createPartFromUri(clip.uri, clip.mimeType),
-      pass1ClassificationPrompt(),
-    ]),
-  });
+  const response = await withRetry(
+    () =>
+      ai.models.generateContent({
+        model: MODEL,
+        contents: createUserContent([
+          createPartFromUri(clip.uri, clip.mimeType),
+          pass1ClassificationPrompt(),
+        ]),
+      }),
+    { label: "pass1" },
+  );
 
   const text = response.text ?? "";
   const parsed = tryParseModelJson(text);

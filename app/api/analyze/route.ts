@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
   try {
     const outcome = await analyze(parsed.value);
-    return NextResponse.json(outcome, { status: 200 });
+    return NextResponse.json(outcome.response, { status: 200 });
   } catch (err) {
     const message = (err as Error).message;
     console.error("[analyze] failed:", message);

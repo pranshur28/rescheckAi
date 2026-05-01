@@ -7,6 +7,7 @@ import type { UploadedClip } from "./upload.ts";
 import type { RetrievedChunk } from "../retrieval/types.ts";
 import { pass2VerdictPrompt } from "./prompts.ts";
 import { tryParseModelJson, looksLikeVerdictResponse } from "../validation.ts";
+import { withRetry } from "./retry.ts";
 
 const MODEL = "gemini-2.5-flash";
 
@@ -37,10 +38,14 @@ export async function runPass2(ai: GoogleGenAI, args: Pass2Args): Promise<Verdic
   });
 
   // First attempt.
-  let response = await ai.models.generateContent({
-    model: MODEL,
-    contents: createUserContent([videoPart, prompt]),
-  });
+  let response = await withRetry(
+    () =>
+      ai.models.generateContent({
+        model: MODEL,
+        contents: createUserContent([videoPart, prompt]),
+      }),
+    { label: "pass2-initial" },
+  );
   let text = response.text ?? "";
   let parsed = tryParseModelJson(text);
 
@@ -53,10 +58,14 @@ export async function runPass2(ai: GoogleGenAI, args: Pass2Args): Promise<Verdic
       "",
       prompt,
     ].join("\n");
-    response = await ai.models.generateContent({
-      model: MODEL,
-      contents: createUserContent([videoPart, repairPrompt]),
-    });
+    response = await withRetry(
+      () =>
+        ai.models.generateContent({
+          model: MODEL,
+          contents: createUserContent([videoPart, repairPrompt]),
+        }),
+      { label: "pass2-repair" },
+    );
     text = response.text ?? "";
     parsed = tryParseModelJson(text);
   }

@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(gh pr create --title 'Add per-incident few-shot examples to Pass 2 verdict prompt \\(PRD §11.8\\)' --body ' *)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "Bash(gh issue *)",
+      "Bash(gh pr create --title 'Add test-clips/ground-truth.json for PRD §12 eval' --body ' *)",
+      "Bash(npx tsx *)",
+      "Bash(node --test lib)",
+      "Bash(gh pr *)",
+      "Bash(gh run *)",
+      "Bash(curl -s -o /dev/null -w \"refcheckai.netlify.app: HTTP %{http_code}\\\\n\" https://refcheckai.netlify.app/)",
+      "Bash(GEMINI_API_KEY=fake-for-test npm run eval)",
+      "Bash(git fetch *)",
+      "Bash(git branch *)",
+      "Bash(gh api *)",
+      "Bash(git ls-remote *)"
+    ]
+  }
+}

@@ -3,6 +3,7 @@
 // (PRD §9 — avoids double-uploading).
 
 import { GoogleGenAI } from "@google/genai";
+import { withRetry } from "./retry.ts";
 
 const POLL_INTERVAL_MS = 2_000;
 // Route maxDuration is 60s. Budget: ~30s for upload+poll, ~30s for Pass 1 +
@@ -51,10 +52,10 @@ export async function uploadCloudinaryToGemini(
   // /tmp file write inside the Netlify Function.
   const blob = new Blob([arrayBuffer], { type: "video/mp4" });
 
-  const uploaded = await ai.files.upload({
-    file: blob,
-    config: { mimeType: "video/mp4" },
-  });
+  const uploaded = await withRetry(
+    () => ai.files.upload({ file: blob, config: { mimeType: "video/mp4" } }),
+    { label: "files.upload (cloudinary)" },
+  );
   if (!uploaded.name) throw new Error("Gemini upload returned no file name");
 
   const start = Date.now();
@@ -106,7 +107,10 @@ export async function uploadLocalToGemini(
       : "video/mp4";
   const blob = new Blob([buffer], { type: mimeType });
 
-  const uploaded = await ai.files.upload({ file: blob, config: { mimeType } });
+  const uploaded = await withRetry(
+    () => ai.files.upload({ file: blob, config: { mimeType } }),
+    { label: "files.upload (local)" },
+  );
   if (!uploaded.name) throw new Error("Gemini upload returned no file name");
 
   const start = Date.now();
