@@ -41,23 +41,23 @@
   },
   {
     "id": "05",
-    "filename": "05-gk-off-line-retake.mp4",
-    "description": "Penalty kick: goalkeeper has both feet clearly forward of the goal line at the moment the ball is kicked, then saves; referee orders a retake.",
-    "original_referee_decision": "no_penalty_awarded",
+    "filename": "05-penalty-awarded-handball.mp4",
+    "description": "Defender handles a cross inside the penalty area with an arm held away from the body; referee awards a penalty kick.",
+    "original_referee_decision": "penalty_awarded",
     "expected_incident_type": "penalty_kick",
     "expected_law": "Law 14",
     "expected_verdict": "correct_call",
-    "notes": "GK encroachment + missed/saved penalty = retake (Law 14 procedure). Tests whether the model identifies the encroachment as the rule trigger rather than the save."
+    "notes": "Tests whether the eval covers a valid penalty-kick award using an OriginalRefereeDecision value the app actually supports."
   },
   {
     "id": "06",
-    "filename": "06-wall-too-close-bad-call.mp4",
-    "description": "Defending wall stands roughly 6-7 m from the ball at a free kick (clearly less than 9.15 m); referee allows the kick to proceed without resetting.",
+    "filename": "06-free-kick-awarded-foul.mp4",
+    "description": "Attacker is carelessly tripped just outside the penalty area as the ball is played; referee awards a direct free kick.",
     "original_referee_decision": "free_kick_awarded",
     "expected_incident_type": "free_kick",
     "expected_law": "Law 13",
-    "expected_verdict": "bad_call",
-    "notes": "Distance estimable from the visible 18-yard markings. Tests rule application against on-field markings as a measurement reference."
+    "expected_verdict": "correct_call",
+    "notes": "Tests free-kick restart selection without using the enum value as a stand-in for an unmodeled 'allowed play' or 'retake' decision."
   },
   {
     "id": "07",
@@ -81,13 +81,13 @@
   },
   {
     "id": "09",
-    "filename": "09-corner-encroachment.mp4",
-    "description": "Corner kick taken with two defenders standing within roughly 6 m of the corner arc; defenders win the header at the kick.",
+    "filename": "09-corner-awarded-deflection.mp4",
+    "description": "Attacker's cross takes a clear final touch off a defender and fully crosses the goal line outside the goal; referee awards a corner kick.",
     "original_referee_decision": "corner_kick_awarded",
     "expected_incident_type": "corner_kick",
     "expected_law": "Law 17",
-    "expected_verdict": "bad_call",
-    "notes": "Law 17 requires opponents to remain at least 9.15 m from the corner arc. Tests rule application on a less common law."
+    "expected_verdict": "correct_call",
+    "notes": "Tests Law 17 restart selection without encoding a missing encroachment/no-retake decision as 'corner_kick_awarded'."
   },
   {
     "id": "10",
