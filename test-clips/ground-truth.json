@@ -1,0 +1,102 @@
+[
+  {
+    "id": "01",
+    "filename": "01-clear-trip-penalty.mp4",
+    "description": "Defender extends a leg into the path of an attacker inside the penalty area, making leg-to-leg contact before the ball; referee awards a penalty.",
+    "original_referee_decision": "penalty_awarded",
+    "expected_incident_type": "foul",
+    "expected_law": "Law 12",
+    "expected_verdict": "correct_call",
+    "notes": "Clear contact, ball not played, offence inside penalty area. Camera angle is broadcast-style with a clear view of the trip."
+  },
+  {
+    "id": "02",
+    "filename": "02-deliberate-handball-no-call.mp4",
+    "description": "Defender's outstretched arm blocks a goal-bound shot inside the penalty area; arm is clearly extended away from the body; no penalty given.",
+    "original_referee_decision": "no_penalty_awarded",
+    "expected_incident_type": "handball",
+    "expected_law": "Law 12",
+    "expected_verdict": "bad_call",
+    "notes": "Body unnaturally bigger criterion is met. Tests whether the model penalises clear handball even when the original call disagrees."
+  },
+  {
+    "id": "03",
+    "filename": "03-offside-goal-allowed.mp4",
+    "description": "Striker is past the second-last defender at the moment a team-mate plays the through ball; striker scores; goal is allowed.",
+    "original_referee_decision": "goal_allowed",
+    "expected_incident_type": "offside",
+    "expected_law": "Law 11",
+    "expected_verdict": "bad_call",
+    "notes": "Tactical-camera angle from the side. Tests offside-position detection at the moment the ball is played."
+  },
+  {
+    "id": "04",
+    "filename": "04-offside-obstructed-inconclusive.mp4",
+    "description": "Through-ball play; a foreground player crosses the camera at the exact moment the pass is played, obscuring the offside line.",
+    "original_referee_decision": "goal_allowed",
+    "expected_incident_type": "offside",
+    "expected_law": "Law 11",
+    "expected_verdict": "inconclusive",
+    "notes": "Inconclusive by design — the model should NOT guess. Tests whether evidence-quality short-circuits to inconclusive when the decisive frame is obscured."
+  },
+  {
+    "id": "05",
+    "filename": "05-gk-off-line-retake.mp4",
+    "description": "Penalty kick: goalkeeper has both feet clearly forward of the goal line at the moment the ball is kicked, then saves; referee orders a retake.",
+    "original_referee_decision": "no_penalty_awarded",
+    "expected_incident_type": "penalty_kick",
+    "expected_law": "Law 14",
+    "expected_verdict": "correct_call",
+    "notes": "GK encroachment + missed/saved penalty = retake (Law 14 procedure). Tests whether the model identifies the encroachment as the rule trigger rather than the save."
+  },
+  {
+    "id": "06",
+    "filename": "06-wall-too-close-bad-call.mp4",
+    "description": "Defending wall stands roughly 6-7 m from the ball at a free kick (clearly less than 9.15 m); referee allows the kick to proceed without resetting.",
+    "original_referee_decision": "free_kick_awarded",
+    "expected_incident_type": "free_kick",
+    "expected_law": "Law 13",
+    "expected_verdict": "bad_call",
+    "notes": "Distance estimable from the visible 18-yard markings. Tests rule application against on-field markings as a measurement reference."
+  },
+  {
+    "id": "07",
+    "filename": "07-throw-in-foot-up.mp4",
+    "description": "At the moment of release on a throw-in, both of the thrower's feet leave the ground; referee correctly awards possession to the opposing team.",
+    "original_referee_decision": "throw_in_awarded",
+    "expected_incident_type": "throw_in",
+    "expected_law": "Law 15",
+    "expected_verdict": "correct_call",
+    "notes": "Tests recognition of a small-but-clear procedural offence. The model should identify which team the throw was awarded to."
+  },
+  {
+    "id": "08",
+    "filename": "08-ball-not-fully-out.mp4",
+    "description": "Ball travels close to the touchline; assistant flags for a throw-in; replay shows part of the ball is still over the line.",
+    "original_referee_decision": "throw_in_awarded",
+    "expected_incident_type": "ball_in_out",
+    "expected_law": "Law 9",
+    "expected_verdict": "bad_call",
+    "notes": "Law 9 requires the WHOLE of the ball to pass over the line. Tests whether the model applies the wholly-over criterion correctly."
+  },
+  {
+    "id": "09",
+    "filename": "09-corner-encroachment.mp4",
+    "description": "Corner kick taken with two defenders standing within roughly 6 m of the corner arc; defenders win the header at the kick.",
+    "original_referee_decision": "corner_kick_awarded",
+    "expected_incident_type": "corner_kick",
+    "expected_law": "Law 17",
+    "expected_verdict": "bad_call",
+    "notes": "Law 17 requires opponents to remain at least 9.15 m from the corner arc. Tests rule application on a less common law."
+  },
+  {
+    "id": "10",
+    "filename": "10-non-soccer-clip.mp4",
+    "description": "A short basketball clip uploaded by mistake — no soccer content.",
+    "original_referee_decision": "unknown",
+    "expected_incident_type": "unknown",
+    "expected_law": "",
+    "expected_verdict": "inconclusive",
+    "notes": "Adversarial input. Pass 1 should set is_soccer_clip:false and short-circuit to retrieval_source:none, no rule_applied. Confirms the non-soccer guard works end-to-end."
+  }
+]
