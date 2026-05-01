@@ -57,6 +57,7 @@ export default function AnalyzeApp() {
     setOriginalDecision(preset.originalDecision);
     setIncidentType(preset.incidentType);
     setSelectedDemoPresetId(preset.id);
+    setIsDemoResponse(false);
     setResult(null);
     setError("");
     setStatus("idle");
@@ -237,9 +238,10 @@ export default function AnalyzeApp() {
             </span>
             <select
               value={originalDecision}
-              onChange={(e) =>
-                setOriginalDecision(e.target.value as OriginalRefereeDecision)
-              }
+              onChange={(e) => {
+                setOriginalDecision(e.target.value as OriginalRefereeDecision);
+                setSelectedDemoPresetId(null);
+              }}
               className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
             >
               {ORIGINAL_DECISION_OPTIONS.map((opt) => (
@@ -254,11 +256,12 @@ export default function AnalyzeApp() {
             <span className="mb-1 block font-medium">Incident type</span>
             <select
               value={incidentType}
-              onChange={(e) =>
+              onChange={(e) => {
                 setIncidentType(
                   e.target.value as IncidentType | "auto_detect",
-                )
-              }
+                );
+                setSelectedDemoPresetId(null);
+              }}
               className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
             >
               {INCIDENT_TYPE_OPTIONS.map((opt) => (
