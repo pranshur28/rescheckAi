@@ -9,7 +9,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test",
-    "spike:gemini-video": "tsx scripts/spike/gemini-video.ts"
+    "spike:gemini-video": "tsx scripts/spike/gemini-video.ts",
+    "eval": "tsx scripts/eval/run-eval.ts"
   },
   "dependencies": {
     "@google/genai": "^1.0.0",
