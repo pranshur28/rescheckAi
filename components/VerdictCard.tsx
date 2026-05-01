@@ -7,6 +7,7 @@ import type {
   Confidence,
   EvidenceQuality,
   RetrievalSource,
+  ReviewMode,
   Verdict,
   VerdictResponse,
 } from "@/lib/types";
@@ -39,7 +40,18 @@ const RETRIEVAL_BADGE_COPY: Partial<Record<RetrievalSource, string>> = {
 export default function VerdictCard({ response }: { response: VerdictResponse }) {
   return (
     <section className="space-y-6 rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
-      <Header verdict={response.verdict} confidence={response.confidence} />
+      {response.review_mode === "rule_assessment" ? (
+        <Note>
+          Original referee decision was not provided, so RefCheck is in rule
+          assessment mode. It explains what the rule says without saying
+          whether the referee was right or wrong.
+        </Note>
+      ) : null}
+      <Header
+        verdict={response.verdict}
+        confidence={response.confidence}
+        reviewMode={response.review_mode}
+      />
 
       <Summary
         whatHappened={response.what_happened}
@@ -63,16 +75,23 @@ export default function VerdictCard({ response }: { response: VerdictResponse })
 function Header({
   verdict,
   confidence,
+  reviewMode,
 }: {
   verdict: Verdict;
   confidence: Confidence;
+  reviewMode: ReviewMode;
 }) {
+  const badgeText =
+    reviewMode === "rule_assessment"
+      ? "Rule assessment"
+      : VERDICT_COPY[verdict];
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <span
         className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-white ${VERDICT_BG[verdict]}`}
       >
-        {VERDICT_COPY[verdict]}
+        {badgeText}
       </span>
       <span className="inline-flex items-center rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
         Confidence: {confidence}
