@@ -66,7 +66,7 @@ Out of scope (rule-based but not video-reviewable from a 30-second clip): Laws 1
    │            ▼
    │   ┌──────────────────────────────────────────┐
    │   │ Pass 2: verdict (Gemini 2.5)             │
-   │   │   prompt = clip + chunks + few-shots     │
+   │   │   prompt = clip + chunks + schema        │
    │   └────────┬─────────────────────────────────┘
    │            │ raw JSON
    │            ▼
@@ -108,14 +108,14 @@ npm test            # Node test runner over *.test.ts
 npm run build       # Next.js production build
 ```
 
-### Demo mode (escape hatch)
+### Demo mode (optional escape hatch)
 
-Live demos are fragile. Two ways to switch the demo presets to cached responses (no Gemini call, no Vertex call):
+Live demos are fragile. Deployments that include cached demo-mode support can switch the preset clips to static responses (no Gemini call, no Vertex call) in either of these ways:
 
 - Append `?demo=1` to the URL, or
 - Set `NEXT_PUBLIC_DEMO_MODE_DEFAULT=1` and redeploy.
 
-In demo mode, **only** the three preset buttons return cached responses from `public/demo-responses/*.json`. Arbitrary uploads still go through the live API.
+When that support is present, **only** the preset buttons return cached responses from `public/demo-responses/*.json`. Arbitrary uploads still go through the live API. If those cached-response assets are not present in a checkout, this section is not needed for normal local development.
 
 ## Corpus prep (one-time)
 
@@ -160,10 +160,10 @@ scripts/
   python/prep_corpus.py      One-time Vertex corpus build
   spike/gemini-video.ts      Local Gemini smoke test
 public/
-  demo-responses/*.json      Cached responses for ?demo=1 / DEMO_MODE_DEFAULT
+  demo-responses/*.json      Optional cached responses for demo-mode deployments
 test-clips/
-  ground-truth.json          PRD §12 eval set (10 clips, 7 distinct laws)
-  README.md                  Local clip placement guide
+  ground-truth.json          Optional PRD §12 eval fixture set
+  README.md                  Optional local clip placement guide
 ```
 
 ## Tech stack
@@ -181,14 +181,14 @@ test-clips/
 - **30-second clips, single angle.** Many calls require a second angle or replay; in those cases the answer is **inconclusive**, by design.
 - **Out-of-clip context isn't fetched.** Substitution procedure, match clock, player count, weather — if the rule needs context the clip can't show, RefCheck names what's missing rather than guessing.
 - **Quoted rules are matched verbatim against retrieved chunks.** If the model paraphrases instead of citing, the validation pipeline downgrades confidence to `low`.
-- **Cached demo responses are placeholders** — they ship valid IFAB-grounded JSON so the live demo never goes black, but real clip + real Gemini will produce different reasoning text.
+- **Cached demo responses are placeholders when enabled.** They should ship valid IFAB-grounded JSON so the live demo never goes black, but real clip + real Gemini will produce different reasoning text.
 
 ## Roadmap (v2)
 
 - More sports (basketball + NBA officiating manual is the next obvious target — same architecture, different rulebook).
 - VAR-style multi-angle support.
 - Officiating crew identification (link to public match reports / box scores) — sponsor brief stretch goal.
-- Eval harness wired into CI: `scripts/eval/run-eval.ts` + `test-clips/ground-truth.json`.
+- Eval harness wired into CI once the local `test-clips/ground-truth.json` fixture set is available.
 
 ## License & credits
 
