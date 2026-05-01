@@ -376,49 +376,6 @@ function InputView({
         </p>
       </div>
 
-      {/* Demo presets */}
-      <Section delay="0.05s">
-        <SectionLabel>Try a demo preset</SectionLabel>
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          {DEMO_PRESETS.map((preset) => {
-            const active = selectedDemoPresetId === preset.id;
-            return (
-              <button
-                key={preset.id}
-                onClick={() => onLoadPreset(preset.id)}
-                className="cursor-pointer rounded-lg p-3 text-left transition-colors"
-                style={{
-                  background: active ? "var(--blue-dim)" : "var(--bg3)",
-                  border: `1px solid ${active ? "var(--blue)" : "var(--border)"}`,
-                  color: "var(--fg)",
-                }}
-              >
-                <div
-                  className="mb-1 font-barlow uppercase"
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 15,
-                    letterSpacing: "0.04em",
-                    color: "var(--fg)",
-                  }}
-                >
-                  {preset.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: "var(--fg3)",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {preset.presenterNote}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </Section>
-
       {/* Upload */}
       <Section delay="0.1s">
         <SectionLabel>
