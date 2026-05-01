@@ -1,0 +1,844 @@
+# RefCheck AI: Product Requirements Document v1.4
+
+**Hackathon track:** Sponsored Challenge, $2,000 bounty
+**Sport:** Soccer
+**Rule coverage:** 8 IFAB Laws of the Game that are reviewable from a short clip
+**Deadline:** Tomorrow, 11:30 AM, final submission form
+**Demo window:** 12:00 PM to 4:00 PM
+**Version:** 1.4
+**Last updated:** April 30, 2026
+**Status:** Build-ready
+
+---
+
+## 0. Changelog from v1.3
+
+v1.4 is an architecture refactor. The product behavior is unchanged.
+
+* Removed all inline IFAB law text from the PRD. Earlier versions embedded abridged rule text directly into the system prompt. That approach wasted tokens, was hard to verify, and effectively hardcoded the rulebook into the codebase.
+* Added a Rule Retrieval Architecture section. Law text now lives in a vectorized RAG store built from the official IFAB PDF, retrieved at analysis time based on the detected incident type.
+* Added a two-pass Gemini call pattern: classification first, then verdict with retrieved law chunks.
+* Removed the system prompt from the PRD. Prompt design lives in the codebase, not the spec, and will be iterated separately.
+* Updated the technical architecture diagram, tech stack, and build timeline to reflect retrieval.
+
+This PRD describes the system architecture and behavior. It does not contain the laws or the system prompt sent to Gemini.
+
+---
+
+## 1. Problem Statement
+
+Officiating mistakes in soccer can change the outcome of matches and tournaments. Fans, coaches, players, and analysts often argue over whether a call matched the official rules, but there is no fast, structured, rule-grounded way to review a short clip.
+
+Existing options are either slow expert breakdowns, casual opinions without rule citations, or video replay without structured reasoning.
+
+RefCheck AI lets a user upload a short soccer clip and receive a structured, rule-cited review in under 30 seconds. The app identifies the incident type, retrieves the relevant IFAB Law of the Game from a vectorized rule store, and returns a verdict: correct call, bad call, or inconclusive.
+
+---
+
+## 2. One Sentence Pitch
+
+RefCheck AI analyzes short soccer clips against the 8 IFAB Laws of the Game that are reviewable from video, retrieves the relevant rule passages from a vectorized IFAB rulebook, and returns a rule-cited verdict with a timestamp, evidence quality, confidence level, and step-by-step reasoning.
+
+---
+
+## 3. Product Positioning
+
+RefCheck AI is not an AI referee and does not replace human officials.
+
+It is a rule-grounded second-review assistant that helps answer:
+
+> Was the call on the field supported by what is visible in the clip and by the official IFAB Laws of the Game?
+
+The system is designed to be honest. If the clip does not show enough information, RefCheck AI returns inconclusive instead of guessing. If a call depends on context outside the clip (player count, match timing, substitution procedure, competition outcome), RefCheck AI says so plainly.
+
+---
+
+## 4. Goals and Success Criteria
+
+### Hackathon goals
+
+1. Hit every requirement in the sponsor brief to qualify for the full $2,000 bounty.
+2. Demonstrate one sport well: soccer.
+3. Avoid looking like a generic Gemini wrapper by adding rule retrieval, grounded rule citation, evidence quality scoring, and a real test set.
+4. Survive live demo risk with pre-uploaded clips, demo presets, and cached responses.
+5. Give judges a product that feels expandable into a real referee-review platform.
+
+### Sponsor requirements
+
+* [ ] Accepts a short sports video clip
+* [ ] Compares the play to official rules
+* [ ] Explains the reasoning behind the verdict
+* [ ] Public GitHub repo
+* [ ] Uses AI or multimodal analysis
+* [ ] Returns a clear verdict: correct call, bad call, or inconclusive
+* [ ] Deployed at a live URL
+* [ ] Works on at least one sport: soccer
+
+### Internal success metrics
+
+* End-to-end analysis under 30 seconds for pre-tested clips
+* At least 70 percent verdict accuracy on a curated 8 to 10 clip test set
+* Zero crashes during the live demo
+* At least 3 supported incident categories demonstrated live or through cached examples
+* Every result includes a law reference retrieved from the IFAB rule store, evidence assessment, and reasoning chain
+
+---
+
+## 5. Scope
+
+### In scope for v1.4
+
+* Single sport: soccer
+* Eight IFAB laws covered by the RAG store
+* Single uploaded clip per analysis, max 30 seconds
+* User-provided original referee decision
+* Auto-detection of incident type
+* Rule classification across the 8 supported laws
+* Three verdicts: correct call, bad call, inconclusive
+* Confidence derived from evidence quality
+* Public web app with upload, analyze, and display flow
+* Demo presets for live demo
+* Higher frame sampling or key-frame extraction for fast-action clips when feasible
+
+### Supported laws, clip-reviewable with retrieved rule text
+
+| Law    | Title                       | Why it is reviewable from a clip                                                                   |
+| ------ | --------------------------- | -------------------------------------------------------------------------------------------------- |
+| Law 9  | The Ball In and Out of Play | Whether the whole ball crossed the line is visually decidable.                                     |
+| Law 11 | Offside                     | Position relative to defenders at the moment of pass is visible when the camera angle is suitable. |
+| Law 12 | Fouls and Misconduct        | Contact, severity, handball, and misconduct can often be assessed from video.                      |
+| Law 13 | Free Kicks                  | Wall distance, restart procedure, and double-touch are visible.                                    |
+| Law 14 | The Penalty Kick            | Goalkeeper movement, encroachment, and ball strike are visible.                                    |
+| Law 15 | The Throw-in                | Foot placement, two-handed delivery, and behind-over-head delivery are visible.                    |
+| Law 16 | The Goal Kick               | Restart procedure and ball movement are visible.                                                   |
+| Law 17 | The Corner Kick             | Ball placement, opponent distance, and restart procedure are visible.                              |
+
+### Out of scope for v1.4
+
+* The 9 IFAB laws that usually depend on full-match context: Laws 1, 2, 3, 4, 5, 6, 7, 8 (beyond restart visibility already covered in Laws 13 to 17), and 10
+* Other sports such as basketball, football, baseball, or boxing
+* Full VAR-style multi-angle review
+* Real-time streaming analysis
+* User accounts and long-term history
+* Mobile native app
+* Training a custom computer vision model from scratch
+* Guaranteeing a definitive verdict on every clip
+
+If a clip raises an issue under one of the unsupported laws, the system returns inconclusive and explains that the relevant law usually requires full-match context.
+
+---
+
+## 6. Rule Coverage Strategy
+
+RefCheck AI uses a classification-first, retrieval-second pipeline:
+
+1. Confirm the clip appears to be soccer.
+2. Identify the main disputed incident.
+3. Classify the incident type.
+4. Map incident type to a supported IFAB law.
+5. Retrieve the most relevant rule passages from the IFAB RAG store.
+6. Compare the visible evidence against the retrieved passages.
+7. Compare the rule analysis against the original referee decision.
+8. Return correct call, bad call, or inconclusive.
+
+If the incident does not map to one of the 8 supported laws, the model returns inconclusive with a short note explaining that this kind of decision usually needs context the clip cannot provide.
+
+### Incident-to-law mapping
+
+This mapping is deterministic and lives in code, not in the prompt.
+
+| Incident type        | Law         |
+| -------------------- | ----------- |
+| `foul`               | Law 12      |
+| `handball`           | Law 12      |
+| `offside`            | Law 11      |
+| `penalty_kick`       | Law 14      |
+| `free_kick`          | Law 13      |
+| `throw_in`           | Law 15      |
+| `goal_kick`          | Law 16      |
+| `corner_kick`        | Law 17      |
+| `ball_in_out`        | Law 9       |
+| `unsupported`        | none, return inconclusive |
+| `unknown`            | none, return inconclusive |
+
+---
+
+## 7. User Inputs
+
+### Required inputs
+
+1. Soccer video clip
+2. Original referee decision
+3. Incident type, optional because Auto-detect is default
+
+### Original referee decision options
+
+Foul called, no foul called, penalty awarded, no penalty awarded, offside called, goal allowed, goal disallowed, throw-in awarded, goal kick awarded, corner kick awarded, free kick awarded, yellow card given, red card given, unknown.
+
+### Unknown original decision handling
+
+RefCheck AI is strongest when the user provides the original referee decision. The app needs the original call to determine whether that call was correct or bad.
+
+If `original_referee_decision` is `unknown`:
+
+* The system runs in **rule assessment** mode rather than **call review** mode.
+* The model may still identify the incident and explain the likely rule application using retrieved law passages.
+* The verdict should usually be `inconclusive` because correctness requires knowing what was called.
+* Demo presets must never use `unknown`. Every preset includes a clear original referee decision.
+
+### Card decision note
+
+Card decisions are reviewable when the user selects them as the primary decision (for example, "was this red card correct?"). The form does not currently support reviewing two outcomes at once, such as penalty plus yellow card in a single verdict.
+
+### Incident type options
+
+Default: **Auto-detect**.
+
+Manual options, each mapped to a supported law per section 6:
+
+Foul or misconduct, handball, offside, penalty kick, free kick, throw-in, goal kick, corner kick, ball in or out of play.
+
+When the user selects a manual incident type, the classification call (Pass 1 in section 11) is skipped.
+
+---
+
+## 8. User Flow
+
+1. User lands on the homepage and sees a clear upload area with sample clip suggestions.
+2. User uploads a soccer clip, max 30 seconds.
+3. User selects the original referee decision.
+4. User leaves incident type on Auto-detect or selects a specific category.
+5. App uploads the clip directly to Cloudinary.
+6. Frontend receives the Cloudinary secure URL.
+7. App calls the analyze endpoint with: Cloudinary URL, original decision, incident type, prompt version.
+8. Backend runs the two-pass analysis flow described in section 11.
+9. Backend validates and normalizes the response.
+10. Frontend displays: verdict, confidence, detected incident type, IFAB law applied, retrieved rule passages, key timestamp, what happened, reasoning breakdown, evidence quality, limitations.
+
+A **Try a demo** button on the homepage loads a preset clip with the original decision and incident type pre-filled, so judges can see a result with one click.
+
+---
+
+## 9. Technical Architecture
+
+```text
+[ Browser ]
+    |
+    | 1. User selects clip and original referee decision
+    | 2. Frontend opens Cloudinary Upload Widget
+    | 3. Browser uploads clip directly to Cloudinary
+    | 4. Frontend receives Cloudinary secure URL
+    |
+    v
+[ Netlify Function: /api/analyze ]
+    |
+    | 5. Receives Cloudinary URL, original decision, and incident type
+    | 6. Pass 1: Classification call to Gemini (skipped if incident_type is manual)
+    |     -> returns incident_type and search_terms
+    | 7. Maps incident_type to law_number using the table in section 6
+    | 8. Retrieves top-k rule chunks from IFAB RAG store using search_terms
+    | 9. Pass 2: Verdict call to Gemini with video and retrieved chunks
+    |     -> returns structured JSON verdict
+    | 10. Validates response (JSON shape, quoted_rule appears in retrieved chunks)
+    |
+    v
+[ Frontend renders verdict ]
+```
+
+### Video ingestion strategy
+
+Cloudinary handles browser upload and video storage.
+
+Gemini analysis uses one of these paths, decided during the hour 1 spike:
+
+1. **Preferred path:** Backend fetches the Cloudinary-hosted MP4 and uploads it to Gemini using the Gemini File API. The same uploaded file handle is reused across both passes to avoid double-uploading.
+2. **Small file fallback:** Backend sends inline video data to Gemini for clips under the request size limit.
+3. **Demo fallback:** Frontend loads cached JSON responses for pre-tested demo clips if the AI call fails during the live pitch.
+
+### Fast-action sampling strategy
+
+Short soccer clips often depend on timing-sensitive details, especially:
+
+* the exact moment a pass is played for offside
+* whether a defender contacts the ball or opponent first
+* whether the whole ball fully crosses the whole line
+* whether a goalkeeper leaves the line early on a penalty kick
+* whether encroachment happens before the ball is kicked
+
+When possible, the backend should request higher FPS video sampling for Gemini analysis (3 to 5 FPS). If higher sampling is not reliable, the backend should extract key frames around the disputed moment and send those frames alongside the video.
+
+For the hackathon MVP, this can be implemented in one of three levels:
+
+1. **Minimum:** Send the video directly to Gemini and ask for the key timestamp.
+2. **Better:** Ask Gemini to identify the key timestamp in Pass 1, then re-analyze extracted frames around that timestamp in Pass 2.
+3. **Best:** Pre-extract frames at 3 to 5 FPS and send the most relevant frames with the video prompt.
+
+The build should choose the highest level that can be implemented safely before demo time.
+
+### Why direct-to-Cloudinary?
+
+Serverless functions have strict execution and payload limits. Sending raw video through the backend increases the risk of timeouts, request size failures, and poor conference Wi-Fi performance. Direct browser upload to Cloudinary keeps the function lightweight.
+
+---
+
+## 10. Tech Stack
+
+### Frontend
+
+* Next.js, App Router
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+
+### Backend
+
+* Netlify Functions, Node runtime
+
+### Storage and CDN
+
+* Cloudinary Upload Widget
+* Unsigned upload preset for hackathon speed, restricted by file type, size, folder, and format
+* Signed upload is a stretch goal
+
+### AI
+
+* Google Gemini API for video analysis
+* Primary model candidate: Gemini 2.5 Flash for speed
+* Backup model candidate: Gemini 2.5 Pro if reasoning quality matters more than latency
+* Gemini text-embedding model for the RAG store (e.g., `text-embedding-004` or current equivalent)
+
+### Rule retrieval (RAG)
+
+* Source document: official IFAB Laws of the Game PDF, downloaded from theifab.com
+* Vector store: in-memory JSON file shipped with the deployment, loaded at function cold-start
+  * Rationale: with 8 laws and roughly 50 to 150 chunks, an in-memory store with cosine similarity in code is faster, simpler, and has no infrastructure dependency. Avoids Pinecone, Chroma, or Supabase pgvector setup time.
+* Alternative if time allows: Supabase pgvector or a local SQLite vector extension
+
+### Optional video processing
+
+* ffmpeg or a lightweight frame extraction library if key-frame extraction is implemented
+
+### Deployment
+
+* Netlify
+
+### Stretch goal
+
+* Supabase for storing past analyses and a recent verdicts gallery
+
+---
+
+## 11. AI Architecture: Two-Pass Retrieval Flow
+
+This section specifies the architecture for how Gemini is called and how rule retrieval works. It does not contain the system prompt itself; that lives in the codebase.
+
+### 11.1 Why retrieval, not inline rules
+
+Earlier PRD versions embedded abridged rule text directly into the system prompt. That approach has three problems:
+
+1. **Token waste:** every analyze call sends roughly 1,500 to 2,000 tokens of law text when only one law applies.
+2. **Verifiability:** the rules in the prompt were paraphrased from memory and not verified against the official IFAB source.
+3. **Maintenance:** rule changes require code changes.
+
+Retrieval fixes all three. Law text comes from the official PDF, only relevant chunks are sent, and updates require only re-running the embedding pipeline.
+
+### 11.2 Corpus preparation (offline, one-time)
+
+Run before the app is deployed. Output is a static JSON file checked into the repo.
+
+1. Download the IFAB Laws of the Game PDF from theifab.com.
+2. Extract text from the PDF.
+3. Filter to the 8 supported laws (Law 9, 11, 12, 13, 14, 15, 16, 17).
+4. Chunk by clause or paragraph. Target chunk size: 100 to 300 tokens. Each chunk preserves: full text, law number, law title, section heading, chunk id.
+5. Embed each chunk using the Gemini embedding model.
+6. Write to `data/ifab-rules.json` with the schema below.
+
+```json
+[
+  {
+    "id": "law-12-direct-free-kick-offences-careless",
+    "law_number": "Law 12",
+    "law_title": "Fouls and Misconduct",
+    "section": "Direct free kick offences",
+    "text": "<original IFAB clause text>",
+    "embedding": [0.0123, -0.0456, ...]
+  }
+]
+```
+
+### 11.3 Retrieval at analysis time
+
+The backend runs a two-pass call pattern. Pass 1 is skipped if the user manually selected an incident type.
+
+#### Pass 1: classification (only when incident_type is auto_detect)
+
+* Input: video + a short classification prompt
+* Output schema:
+
+  ```json
+  {
+    "is_soccer_clip": true,
+    "incident_type": "foul | handball | offside | penalty_kick | free_kick | throw_in | goal_kick | corner_kick | ball_in_out | unsupported | unknown",
+    "key_moment_timestamp": "MM:SS",
+    "search_terms": ["short", "phrases", "describing", "what", "matters", "in", "the", "clip"]
+  }
+  ```
+
+The classification prompt is small and cheap. It does not include any rule text. It just asks the model to look at the video and label the incident.
+
+#### Law selection
+
+Deterministic lookup using the table in section 6. No vector search at this layer.
+
+If `incident_type` is `unsupported` or `unknown`, skip retrieval and return an inconclusive verdict.
+
+#### Within-law retrieval
+
+Given a law number and a list of search terms:
+
+1. Filter the IFAB JSON to chunks where `law_number` matches.
+2. Embed the search terms (or a concatenation of them) using the same Gemini embedding model used at corpus prep time.
+3. Compute cosine similarity between the search-term embedding and each filtered chunk embedding.
+4. Return the top `k` chunks. Suggested `k`: 3 to 5.
+
+#### Pass 2: verdict
+
+* Input: video + retrieved chunks + original referee decision + incident type + JSON schema
+* Output: full structured verdict matching the schema in section 11.4
+
+The verdict prompt instructs the model to cite only from the retrieved chunks and to return inconclusive if the retrieved chunks do not address the incident.
+
+### 11.4 Required JSON schema (verdict response)
+
+```json
+{
+  "is_soccer_clip": true,
+  "detected_incident_type": "foul | handball | offside | penalty_kick | free_kick | throw_in | goal_kick | corner_kick | ball_in_out | unsupported | unknown",
+  "original_referee_decision": "foul_called | no_foul_called | penalty_awarded | no_penalty_awarded | offside_called | goal_allowed | goal_disallowed | throw_in_awarded | goal_kick_awarded | corner_kick_awarded | free_kick_awarded | yellow_card_given | red_card_given | unknown",
+  "review_mode": "call_review | rule_assessment",
+  "verdict": "correct_call | bad_call | inconclusive",
+  "confidence": "low | medium | high",
+  "key_moment_timestamp": "MM:SS",
+  "what_happened": "One sentence describing the visible incident.",
+  "rule_applied": {
+    "law_number": "Law 11",
+    "law_title": "Offside",
+    "section": "Offside offence",
+    "retrieved_chunk_ids": ["law-11-offside-offence-interfering-with-play"],
+    "quoted_rule": "Direct excerpt of the cited clause copied verbatim from one of the retrieved chunks."
+  },
+  "reasoning": [
+    "Step 1: Identify the incident.",
+    "Step 2: Identify the relevant rule from the retrieved chunks.",
+    "Step 3: Explain the visible evidence.",
+    "Step 4: Compare the evidence to the rule.",
+    "Step 5: Compare the rule analysis to the original referee decision."
+  ],
+  "evidence_quality": {
+    "camera_angle": "clear | partial | obstructed",
+    "key_moment_visible": true,
+    "ball_visible_when_needed": true,
+    "players_visible_when_needed": true,
+    "field_lines_visible_when_needed": true,
+    "frame_rate_adequate": true,
+    "required_context_missing": [],
+    "issues": []
+  },
+  "review_limitations": [
+    "List any limitations that affect certainty."
+  ]
+}
+```
+
+### 11.5 Confidence derivation
+
+Confidence is derived from evidence quality in code, not from the model self-rating.
+
+```typescript
+function deriveConfidence(evidence: EvidenceQuality): 'low' | 'medium' | 'high' {
+  const missingCriticalContext = evidence.required_context_missing.length > 0
+  const visibilityGood =
+    evidence.camera_angle === 'clear' &&
+    evidence.key_moment_visible &&
+    evidence.frame_rate_adequate
+
+  const neededObjectsVisible =
+    evidence.ball_visible_when_needed &&
+    evidence.players_visible_when_needed &&
+    evidence.field_lines_visible_when_needed
+
+  if (visibilityGood && neededObjectsVisible && !missingCriticalContext) {
+    return 'high'
+  }
+
+  if (
+    evidence.camera_angle === 'obstructed' ||
+    !evidence.key_moment_visible ||
+    missingCriticalContext
+  ) {
+    return 'low'
+  }
+
+  return 'medium'
+}
+```
+
+### 11.6 Review mode derivation
+
+```typescript
+function deriveReviewMode(originalDecision: OriginalRefereeDecision): 'call_review' | 'rule_assessment' {
+  return originalDecision === 'unknown' ? 'rule_assessment' : 'call_review'
+}
+```
+
+If `review_mode` is `rule_assessment`, the UI should not say the call was right or wrong. Instead it shows a notice that the original decision was not provided and presents the result as a rule assessment.
+
+### 11.7 Response validation
+
+The backend validates the model response before rendering:
+
+* If JSON parsing fails, retry once with a stricter JSON-only repair prompt.
+* If it still fails, return a friendly error.
+* For demo clips, fall back to cached responses if demo mode is enabled.
+* Verify that every `retrieved_chunk_id` in the response exists in the retrieved set for this call. If any id is invented, downgrade confidence to low and flag the response.
+* Verify that `quoted_rule` appears verbatim (or as a clear substring) within at least one of the retrieved chunks. If not, downgrade confidence to low and flag the response.
+* If `original_referee_decision` is `unknown` and the model returns `correct_call` or `bad_call`, override the verdict to `inconclusive` and set `review_mode` to `rule_assessment`.
+
+---
+
+## 12. Test Set and Evaluation
+
+### Test set goals
+
+The test set proves that RefCheck AI handles more than one kind of call and is honest about unclear evidence. It is a spot-check across categories, not a benchmark.
+
+The test set covers at least 4 of the 8 supported laws and includes one intentionally unclear clip where the correct output is inconclusive.
+
+### Recommended structure
+
+```text
+test-clips/
+  ground-truth.json
+  clips/
+    01-clear-trip-penalty.mp4
+    02-clean-slide-tackle.mp4
+    03-deliberate-handball.mp4
+    04-offside-goal.mp4
+    05-onside-goal.mp4
+    06-ball-out-of-play.mp4
+    07-improper-throw-in.mp4
+    08-goalkeeper-penalty-movement.mp4
+    09-corner-restart-issue.mp4
+    10-obstructed-angle-inconclusive.mp4
+```
+
+### Ground truth format
+
+```json
+[
+  {
+    "id": "01",
+    "filename": "01-clear-trip-penalty.mp4",
+    "description": "Defender trips attacker inside the penalty area and the referee awards a penalty.",
+    "original_referee_decision": "penalty_awarded",
+    "expected_incident_type": "foul",
+    "expected_law": "Law 12",
+    "expected_verdict": "correct_call",
+    "notes": "Clear contact, ball not played, offence inside penalty area."
+  }
+]
+```
+
+### Evaluation metrics
+
+Track four results:
+
+1. Verdict accuracy
+2. Law classification accuracy
+3. Inconclusive handling accuracy
+4. Retrieval grounding rate (percentage of responses where `quoted_rule` was successfully matched against retrieved chunks)
+
+### Honest framing for the slide
+
+> Spot-check across X IFAB law categories on Y curated clips.
+
+Do not say "benchmark accuracy." With 8 to 10 clips, the signal is directional, not statistical.
+
+### Eval script outline
+
+```typescript
+import groundTruth from './test-clips/ground-truth.json'
+import { analyzeClip } from './lib/refcheck'
+
+async function runEval() {
+  const results = []
+
+  for (const clip of groundTruth) {
+    const result = await analyzeClip({
+      clipPath: `./test-clips/clips/${clip.filename}`,
+      originalDecision: clip.original_referee_decision,
+      incidentType: 'auto_detect'
+    })
+
+    const verdictCorrect = result.verdict === clip.expected_verdict
+    const lawCorrect = result.rule_applied?.law_number === clip.expected_law
+    const incidentCorrect = result.detected_incident_type === clip.expected_incident_type
+    const retrievalGrounded = result.rule_applied?.retrieved_chunk_ids?.length > 0
+
+    results.push({ id: clip.id, verdictCorrect, lawCorrect, incidentCorrect, retrievalGrounded })
+    console.log(`${clip.id}: verdict=${verdictCorrect ? 'PASS' : 'FAIL'}, law=${lawCorrect ? 'PASS' : 'FAIL'}`)
+  }
+
+  const verdictAccuracy = results.filter(r => r.verdictCorrect).length / results.length
+  const lawAccuracy = results.filter(r => r.lawCorrect).length / results.length
+  const groundedRate = results.filter(r => r.retrievalGrounded).length / results.length
+
+  console.log(`Verdict accuracy: ${(verdictAccuracy * 100).toFixed(1)}%`)
+  console.log(`Law classification accuracy: ${(lawAccuracy * 100).toFixed(1)}%`)
+  console.log(`Retrieval grounded: ${(groundedRate * 100).toFixed(1)}%`)
+}
+
+runEval()
+```
+
+### Copyright note for test clips
+
+Do not commit copyrighted broadcast clips directly into the public GitHub repo unless the team has permission. Safer options: self-recorded clips, Creative Commons clips, or ground truth metadata only with locally stored video.
+
+---
+
+## 13. Demo Strategy
+
+### Live demo flow, 5 minutes total
+
+1. **0:00 to 0:40:** Open with the Mexico World Cup controversy and the product promise.
+2. **0:40 to 1:30:** Run a pre-tested demo preset clip through RefCheck AI live.
+3. **1:30 to 2:20:** Show the result page, highlighting the retrieved IFAB clause.
+4. **2:20 to 3:10:** Explain the architecture: classification, retrieval, verdict.
+5. **3:10 to 4:00:** Show test set results and retrieval grounding rate.
+6. **4:00 to 4:40:** Run or show a second category, ideally offside or ball in or out of play.
+7. **4:40 to 5:00:** Close with v2 roadmap.
+
+### Demo presets
+
+Three demo preset buttons on the homepage so the live demo runs with one click:
+
+* Foul or penalty preset
+* Offside preset
+* Inconclusive preset
+
+Each preset pre-fills the original decision and incident type, and uses a clip already uploaded to Cloudinary.
+
+### Demo preset requirements
+
+Every preset must include: Cloudinary video URL, original referee decision, incident type, cached response JSON, expected law, expected verdict, short presenter note.
+
+### Demo-mode fallback
+
+If Gemini rate-limits, video upload fails, or conference Wi-Fi breaks, switch to cached responses with a URL toggle.
+
+```typescript
+const isDemoMode = new URLSearchParams(window.location.search).get('demo') === '1'
+
+async function handleAnalyze(clipId: string) {
+  if (isDemoMode) {
+    const cached = await fetch(`/demo-responses/${clipId}.json`).then(r => r.json())
+    await new Promise(r => setTimeout(r, 1500))
+    return cached
+  }
+  return await callGemini(clipId)
+}
+```
+
+Pre-cache at least 3 demo responses in `public/demo-responses/`: one foul or penalty, one offside, one inconclusive.
+
+---
+
+## 14. Pitch Strategy
+
+### Opener to memorize
+
+> In 2010, Argentina knocked Mexico out of the World Cup with a goal that was clearly offside. Every Mexican fan watching knew it. The referee did not. That call ended a country's tournament. We built RefCheck AI so the question, was that call right, takes 20 seconds to review instead of 20 years to argue about.
+
+### Main positioning line
+
+> The challenge asked teams to do one sport well. We chose soccer, and inside soccer we cover the eight IFAB laws that can actually be reviewed from a short clip. We built a retrieval system over the official IFAB rulebook so every verdict cites the actual rule clause it used, not a paraphrase. When the video does not show enough, we say inconclusive instead of guessing. That is what makes this a real review tool, not a wrapper.
+
+### Slide outline
+
+1. Title slide: RefCheck AI, team name, one sentence pitch
+2. Problem: controversial calls and lack of fast rule-grounded review
+3. Product: screenshot of upload and verdict UI
+4. Rule coverage: 8 clip-reviewable IFAB laws
+5. Architecture: classification, retrieval over IFAB rulebook, verdict
+6. Demo: live clip review using a demo preset
+7. Test set: spot-check accuracy and retrieval grounding rate
+8. Honest limits: inconclusive when evidence is missing, out of scope when context is missing
+9. Roadmap: more cameras, full rulebook coverage, more sports, referee dashboard
+10. Links: GitHub and live URL
+
+---
+
+## 15. Risk Mitigation
+
+| Risk                                               | Likelihood | Mitigation                                                                                               |
+| -------------------------------------------------- | ---------: | -------------------------------------------------------------------------------------------------------- |
+| Gemini video ingestion path fails                  |     Medium | Spike this in hour 1. Use File API upload from backend as preferred path.                                |
+| RAG corpus prep takes longer than expected         |     Medium | Have a fallback: ship a JSON file hand-curated from the PDF for the 8 laws if embeddings pipeline stalls. |
+| Embedding cosine search returns irrelevant chunks  |     Medium | Filter by `law_number` first, then cosine within-law. Tune top-k.                                        |
+| Two-pass call doubles latency                      |     Medium | Skip Pass 1 when user selects manual incident type. Reuse the same uploaded video file handle.           |
+| Gemini low frame sampling misses fast action       |     Medium | Request higher FPS when possible or extract key frames around the disputed moment.                       |
+| Gemini times out or rate-limits during demo        |     Medium | Demo-mode toggle with cached JSON responses.                                                             |
+| Cloudinary upload is slow on conference Wi-Fi      |     Medium | Pre-upload demo clips and reference stored URLs.                                                         |
+| Model invents rule quotes                          |     Medium | Validation step verifies `quoted_rule` exists in retrieved chunks. Downgrade confidence if not.          |
+| Model guesses on unclear clips                     |     Medium | Strong inconclusive rules and evidence quality schema.                                                   |
+| Netlify payload or execution limits cause failures |     Medium | Do not send raw video through the function request. Upload directly to Cloudinary.                      |
+| Time budget overruns                               |       High | Cut Supabase, user accounts, and advanced history first.                                                 |
+| Original call is unknown                           |     Medium | Return `rule_assessment` mode and `inconclusive` verdict instead of forcing correct or bad call.         |
+
+---
+
+## 16. Build Timeline
+
+| Hour | Task                                                                                                     |
+| ---: | -------------------------------------------------------------------------------------------------------- |
+|    1 | Spike Gemini video ingestion with one hardcoded MP4. Confirm File API or inline data works. Do not move on until this works. |
+|    2 | Build RAG corpus: download IFAB PDF, extract, chunk, embed, write `data/ifab-rules.json`.                 |
+|    3 | Create Next.js app, Tailwind, shadcn/ui, and Netlify deployment.                                         |
+|    4 | Add Cloudinary upload flow and video preview.                                                            |
+|    5 | Build `/api/analyze` Netlify Function with the two-pass flow and within-law retrieval.                    |
+|    6 | Render verdict card, retrieved rule citation, reasoning, and evidence quality.                            |
+|    7 | Add original decision input, incident type selector, and demo preset buttons.                            |
+|    8 | Curate and pre-upload demo clips.                                                                        |
+|    9 | Build cached demo responses and `?demo=1` fallback.                                                      |
+|   10 | Run test set, capture verdict accuracy and retrieval grounding rate.                                      |
+|   11 | Build pitch deck and README.                                                                             |
+|   12 | Rehearse twice and fix the most obvious demo risk.                                                       |
+
+### Ship-or-cut policy
+
+Cut in this order if time gets tight:
+
+1. Supabase history
+2. Recent verdicts gallery
+3. Fancy animations
+4. Multiple model comparison
+5. Signed Cloudinary upload
+6. Advanced eval script
+7. Key-frame extraction beyond basic Gemini video input
+8. Two-pass classification (fall back to requiring manual incident type from the user)
+
+Do not cut:
+
+1. Upload flow
+2. Original referee decision input
+3. RAG corpus and within-law retrieval
+4. Rule-cited verdict using retrieved chunks
+5. Inconclusive handling
+6. Demo presets and demo fallback
+7. Public GitHub repo
+8. Live deployed URL
+
+---
+
+## 17. Q&A Prep
+
+### Why soccer only?
+
+The sponsor recommended doing one sport well. Soccer gives us one official rule authority, the IFAB Laws of the Game, and many visually reviewable incidents.
+
+### Why only 8 laws and not all 17?
+
+The 9 laws we excluded depend on full-match context: field dimensions, ball specs, player counts, match timing, substitutions, kickoff procedures, referee authority, match officials, and competition outcomes. None of these can be honestly reviewed from a 30-second clip. We focused on the 8 laws where the clip itself is the right evidence.
+
+### How does the AI know which law to retrieve from a video?
+
+A two-pass call. The first pass is a small classification call: video in, incident type and search terms out. The incident type maps deterministically to a law number. Then we do semantic search over chunks of that law in our IFAB rulebook embedding store and retrieve the most relevant clauses. The second pass sends the video and the retrieved clauses to Gemini for the actual verdict.
+
+### Why retrieval instead of putting the rules in the prompt?
+
+Three reasons. Token efficiency: only the relevant clauses are sent. Verifiability: rule text comes from the official IFAB PDF, not paraphrased. Maintainability: when IFAB updates the rules, we re-embed the PDF instead of editing prompts.
+
+### Where does the rule text come from?
+
+The official IFAB Laws of the Game PDF, downloaded from theifab.com. We chunk and embed it during corpus prep and ship the embeddings as a JSON file with the deployment.
+
+### How do you prevent rule hallucination?
+
+Two layers. The verdict prompt instructs the model to cite only from the retrieved chunks. The backend then verifies that the `quoted_rule` field appears in the retrieved chunks and that the cited chunk ids belong to this call's retrieval set. If either check fails, we downgrade confidence and flag the response.
+
+### What if the video is unclear?
+
+The system returns inconclusive and explains which evidence was missing.
+
+### What if the original call is unknown?
+
+The system switches to rule assessment mode. It can explain the likely rule application, but it avoids saying the referee was correct or wrong because the original decision was not provided.
+
+### Is this just a Gemini wrapper?
+
+No. The product layer adds: incident classification, retrieval over the official IFAB rulebook, deterministic incident-to-law mapping, structured JSON output with grounded citations, evidence quality scoring, validation that downgrades hallucinated citations, demo presets, demo fallback, and a test-set evaluation including a retrieval grounding rate.
+
+### How do you compute confidence?
+
+Confidence is derived from the model's evidence quality assessment in code. It is not the model rating itself.
+
+### How do you handle fast plays?
+
+For fast-action clips, the system can request higher video sampling or extract key frames around the disputed moment. This is especially important for offside, tackles, and ball-in-or-out decisions.
+
+### What if the uploaded clip is not soccer?
+
+Pass 1 confirms whether the clip appears to be soccer. If not, the app returns an unsupported clip response.
+
+### What would v2 add?
+
+Multi-angle review, chunk-level retrieval across all 17 laws (with appropriate handling for context-dependent ones), more sports, a referee dashboard, and team or league integrations.
+
+---
+
+## 18. Submission Checklist
+
+* [ ] GitHub repo public
+* [ ] README with setup instructions, architecture, and demo links
+* [ ] Live URL working on Netlify
+* [ ] Slide deck uploaded as part of submission form
+* [ ] Team registration form complete
+* [ ] Submission form filled out for sponsor track
+* [ ] IFAB rules JSON committed (`data/ifab-rules.json`)
+* [ ] Demo presets working with one-click runs
+* [ ] Cached responses committed for demo mode
+* [ ] Test set and eval results documented (verdict accuracy and retrieval grounding rate)
+* [ ] All teammates listed on submission
+* [ ] Environment variables documented in `.env.example`
+* [ ] App works on the deployed URL before 11:30 AM
+* [ ] Demo presets have original referee decisions, not unknown decisions
+
+---
+
+## 19. README Summary
+
+RefCheck AI is a hackathon project that reviews soccer referee decisions using AI and the official IFAB Laws of the Game.
+
+Users upload a short soccer clip, provide the original referee decision, and receive a structured review that includes:
+
+* Correct call, bad call, or inconclusive
+* Detected incident type
+* Relevant IFAB law from the 8 supported, clip-reviewable laws
+* Key timestamp
+* Rule-cited reasoning, with the cited clause retrieved from a vectorized IFAB rulebook
+* Evidence quality assessment
+* Confidence level
+
+The app focuses on one sport, soccer, and covers the 8 IFAB laws that can actually be reviewed from a short clip. Rule text is retrieved at analysis time from a RAG store built from the official IFAB PDF.
+
+---
+
+## 20. Appendix: Useful Links
+
+* IFAB Laws of the Game: https://www.theifab.com/laws/latest/about-the-laws/
+* Gemini API video understanding: https://ai.google.dev/gemini-api/docs/video-understanding
+* Gemini embeddings: https://ai.google.dev/gemini-api/docs/embeddings
+* Cloudinary Upload Widget: https://cloudinary.com/documentation/upload_widget
+* Cloudinary Upload Presets: https://cloudinary.com/documentation/upload_presets
+* Netlify Functions: https://docs.netlify.com/build/functions/overview/
