@@ -16,7 +16,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        barlow: ["var(--font-barlow)", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
     },
   },

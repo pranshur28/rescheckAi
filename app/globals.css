@@ -3,19 +3,114 @@
 @tailwind utilities;
 
 :root {
-  --background: 250 250 250;
-  --foreground: 23 23 23;
-}
+  --bg:       oklch(10% 0.01 250);
+  --bg2:      oklch(14% 0.012 250);
+  --bg3:      oklch(18% 0.013 250);
+  --border:   oklch(25% 0.015 250);
+  --border2:  oklch(32% 0.015 250);
+  --fg:       oklch(94% 0.005 250);
+  --fg2:      oklch(65% 0.01 250);
+  --fg3:      oklch(45% 0.01 250);
+  --blue:     #5b8fff;
+  --blue-dim: #5b8fff26;
+  --green:    oklch(62% 0.18 145);
+  --red:      oklch(58% 0.2 25);
+  --amber:    oklch(72% 0.17 75);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 9 9 11;
-    --foreground: 245 245 245;
-  }
+  /* Aliases so mockup-style inline `var(--head)` references port verbatim. */
+  --head: var(--font-barlow), "Barlow Condensed", sans-serif;
+  --body: var(--font-inter), "Inter", sans-serif;
+  --mono: var(--font-mono), "JetBrains Mono", ui-monospace, monospace;
 }
 
 html,
 body {
-  background: rgb(var(--background));
-  color: rgb(var(--foreground));
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--blue-dim);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 3px;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    top: 10%;
+  }
+  100% {
+    top: 90%;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes verdict-pop {
+  0% {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

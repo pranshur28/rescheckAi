@@ -1,5 +1,27 @@
 import type { Metadata } from "next";
+import { Barlow_Condensed, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const barlow = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-barlow",
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "RefCheck AI",
@@ -13,8 +35,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen antialiased">{children}</body>
+    <html
+      lang="en"
+      className={`${inter.variable} ${barlow.variable} ${jetbrains.variable}`}
+    >
+      <body
+        className="min-h-screen font-sans antialiased"
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,35 +1,47 @@
 "use client";
 
-// Renders a VerdictResponse (PRD §11.4) as a structured card.
-// Pure presentational — no fetching, no state. The parent owns the data.
-
 import type {
   Confidence,
   EvidenceQuality,
   RetrievalSource,
-  ReviewMode,
   Verdict,
   VerdictResponse,
 } from "@/lib/types";
 
-const VERDICT_COPY: Record<Verdict, string> = {
-  correct_call: "Correct call",
-  bad_call: "Bad call",
-  inconclusive: "Inconclusive",
+const VERDICT_CFG: Record<
+  Verdict,
+  { label: string; color: string; tint: string; glyph: string }
+> = {
+  correct_call: {
+    label: "Correct call",
+    color: "var(--green)",
+    tint: "oklch(62% 0.18 145 / 0.12)",
+    glyph: "✓",
+  },
+  bad_call: {
+    label: "Bad call",
+    color: "var(--red)",
+    tint: "oklch(58% 0.2 25 / 0.12)",
+    glyph: "✗",
+  },
+  inconclusive: {
+    label: "Inconclusive",
+    color: "var(--amber)",
+    tint: "oklch(72% 0.17 75 / 0.12)",
+    glyph: "?",
+  },
 };
 
-// Tailwind color classes are picked at compile time, so we map verdicts to
-// fully-qualified class strings rather than string-concatenating bg-{x}.
-const VERDICT_BG: Record<Verdict, string> = {
-  correct_call: "bg-verdict-correct",
-  bad_call: "bg-verdict-bad",
-  inconclusive: "bg-verdict-inconclusive",
+const CONFIDENCE_COLOR: Record<Confidence, string> = {
+  high: "var(--green)",
+  medium: "var(--amber)",
+  low: "var(--red)",
 };
 
-const CAMERA_ANGLE_DOT: Record<EvidenceQuality["camera_angle"], string> = {
-  clear: "bg-emerald-500",
-  partial: "bg-amber-500",
-  obstructed: "bg-red-500",
+const CAMERA_COLOR: Record<EvidenceQuality["camera_angle"], string> = {
+  clear: "var(--green)",
+  partial: "var(--amber)",
+  obstructed: "var(--red)",
 };
 
 const RETRIEVAL_BADGE_COPY: Partial<Record<RetrievalSource, string>> = {
@@ -38,64 +50,119 @@ const RETRIEVAL_BADGE_COPY: Partial<Record<RetrievalSource, string>> = {
 };
 
 export default function VerdictCard({ response }: { response: VerdictResponse }) {
+  const cfg = VERDICT_CFG[response.verdict];
+  const isRuleAssessment = response.review_mode === "rule_assessment";
+
   return (
-    <section className="space-y-6 rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
-      {response.review_mode === "rule_assessment" ? (
-        <Note>
-          Original referee decision was not provided, so RefCheck is in rule
-          assessment mode. It explains what the rule says without saying
-          whether the referee was right or wrong.
-        </Note>
-      ) : null}
-      <Header
-        verdict={response.verdict}
-        confidence={response.confidence}
-        reviewMode={response.review_mode}
-      />
+    <div
+      className="mb-8 overflow-hidden rounded-xl"
+      style={{
+        border: "1px solid var(--border)",
+        animation: "verdict-pop 0.5s cubic-bezier(0.22,1,0.36,1) both",
+      }}
+    >
+      {/* Header strip */}
+      <div
+        className="flex flex-wrap items-center gap-4 px-7 py-6"
+        style={{ background: cfg.tint, borderBottom: `1px solid ${cfg.color}40` }}
+      >
+        <div
+          className="flex items-center gap-2.5 font-barlow uppercase"
+          style={{
+            fontWeight: 900,
+            fontSize: 32,
+            letterSpacing: "0.06em",
+            color: cfg.color,
+          }}
+        >
+          <span
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white"
+            style={{
+              background: cfg.color,
+              fontSize: 18,
+              fontWeight: 900,
+            }}
+          >
+            {cfg.glyph}
+          </span>
+          {isRuleAssessment ? "Rule assessment" : cfg.label}
+        </div>
 
-      <Summary
-        whatHappened={response.what_happened}
-        keyMomentTimestamp={response.key_moment_timestamp}
-      />
+        <div className="ml-auto flex flex-col items-end gap-1">
+          <div
+            className="font-barlow uppercase"
+            style={{
+              fontWeight: 700,
+              fontSize: 10,
+              letterSpacing: "0.12em",
+              color: "var(--fg3)",
+            }}
+          >
+            Confidence
+          </div>
+          <div
+            className="font-barlow uppercase"
+            style={{
+              fontWeight: 800,
+              fontSize: 20,
+              letterSpacing: "0.06em",
+              color: CONFIDENCE_COLOR[response.confidence],
+            }}
+          >
+            {response.confidence}
+          </div>
+        </div>
+      </div>
 
-      <RuleAppliedSection
-        ruleApplied={response.rule_applied}
-        retrievalSource={response.retrieval_source}
-      />
+      {/* Body */}
+      <div
+        className="flex flex-col gap-7 px-7 py-6"
+        style={{ background: "var(--bg2)" }}
+      >
+        {isRuleAssessment ? (
+          <Note>
+            Original referee decision was not provided, so RefCheck is in rule
+            assessment mode. It explains what the rule says without saying
+            whether the referee was right or wrong.
+          </Note>
+        ) : null}
 
-      <ReasoningSection reasoning={response.reasoning} />
+        <Summary
+          whatHappened={response.what_happened}
+          keyMomentTimestamp={response.key_moment_timestamp}
+        />
 
-      <EvidenceSection evidence={response.evidence_quality} />
+        <RuleAppliedSection
+          ruleApplied={response.rule_applied}
+          retrievalSource={response.retrieval_source}
+          verdictColor={cfg.color}
+        />
 
-      <LimitationsSection limitations={response.review_limitations} />
-    </section>
+        <ReasoningSection
+          reasoning={response.reasoning}
+          verdictColor={cfg.color}
+        />
+
+        <EvidenceSection evidence={response.evidence_quality} />
+
+        <LimitationsSection limitations={response.review_limitations} />
+      </div>
+    </div>
   );
 }
 
-function Header({
-  verdict,
-  confidence,
-  reviewMode,
-}: {
-  verdict: Verdict;
-  confidence: Confidence;
-  reviewMode: ReviewMode;
-}) {
-  const badgeText =
-    reviewMode === "rule_assessment"
-      ? "Rule assessment"
-      : VERDICT_COPY[verdict];
-
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <span
-        className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-white ${VERDICT_BG[verdict]}`}
-      >
-        {badgeText}
-      </span>
-      <span className="inline-flex items-center rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
-        Confidence: {confidence}
-      </span>
+    <div
+      className="mb-3 flex items-center gap-2.5 font-barlow uppercase"
+      style={{
+        fontWeight: 700,
+        fontSize: 11,
+        letterSpacing: "0.14em",
+        color: "var(--fg3)",
+      }}
+    >
+      {children}
     </div>
   );
 }
@@ -110,14 +177,42 @@ function Summary({
   if (!whatHappened && !keyMomentTimestamp) return null;
   return (
     <div>
+      <div
+        className="mb-2.5 flex items-center gap-2.5 font-barlow uppercase"
+        style={{
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: "0.14em",
+          color: "var(--fg3)",
+        }}
+      >
+        <span>What happened</span>
+        {keyMomentTimestamp ? (
+          <span
+            className="rounded font-mono"
+            style={{
+              fontSize: 11,
+              color: "var(--blue)",
+              background: "var(--blue-dim)",
+              padding: "2px 8px",
+              letterSpacing: "0.04em",
+              textTransform: "none",
+            }}
+          >
+            ⏱ {keyMomentTimestamp}
+          </span>
+        ) : null}
+      </div>
       {whatHappened ? (
-        <p className="text-base leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p
+          style={{
+            fontSize: 15,
+            lineHeight: 1.65,
+            color: "var(--fg)",
+            fontWeight: 400,
+          }}
+        >
           {whatHappened}
-        </p>
-      ) : null}
-      {keyMomentTimestamp ? (
-        <p className="mt-2 text-xs uppercase tracking-wide text-neutral-500">
-          Key moment: <span className="font-mono">{keyMomentTimestamp}</span>
         </p>
       ) : null}
     </div>
@@ -127,13 +222,12 @@ function Summary({
 function RuleAppliedSection({
   ruleApplied,
   retrievalSource,
+  verdictColor,
 }: {
   ruleApplied: VerdictResponse["rule_applied"];
   retrievalSource: RetrievalSource;
+  verdictColor: string;
 }) {
-  // PRD §16: when retrieval_source is "none" the pipeline short-circuited
-  // before retrieval (non-soccer clip, unsupported incident). Suppress the
-  // card and the retrieval badge entirely.
   if (retrievalSource === "none") {
     if (!ruleApplied) {
       return (
@@ -158,26 +252,91 @@ function RuleAppliedSection({
   const badgeCopy = RETRIEVAL_BADGE_COPY[retrievalSource];
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-5 dark:border-neutral-800 dark:bg-neutral-900/40">
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          {ruleApplied.law_number} — {ruleApplied.law_title}
-        </h3>
+    <div
+      className="overflow-hidden rounded-lg"
+      style={{
+        background: "var(--bg3)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      <div
+        className="flex flex-wrap items-center justify-between gap-2 px-[18px] py-3"
+        style={{ borderBottom: "1px solid var(--border)" }}
+      >
+        <div>
+          <span
+            className="mb-0.5 block font-mono"
+            style={{
+              fontSize: 11,
+              color: "var(--blue)",
+              fontWeight: 500,
+              letterSpacing: "0.04em",
+            }}
+          >
+            {ruleApplied.law_number}
+          </span>
+          <span
+            className="font-barlow uppercase"
+            style={{
+              fontWeight: 700,
+              fontSize: 17,
+              color: "var(--fg)",
+              letterSpacing: "0.03em",
+            }}
+          >
+            {ruleApplied.law_title}
+          </span>
+        </div>
         {badgeCopy ? (
-          <span className="rounded-full border border-neutral-300 px-2 py-0.5 text-[10px] uppercase tracking-wide text-neutral-600 dark:border-neutral-700 dark:text-neutral-400">
+          <span
+            className="font-barlow uppercase"
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              color: "var(--fg3)",
+              border: "1px solid var(--border)",
+              padding: "3px 9px",
+              borderRadius: 4,
+            }}
+          >
             {badgeCopy}
           </span>
         ) : null}
       </div>
       {ruleApplied.section ? (
-        <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">
+        <div
+          className="px-[18px] pt-2 font-mono uppercase"
+          style={{
+            fontSize: 11,
+            color: "var(--fg3)",
+            letterSpacing: "0.04em",
+          }}
+        >
           {ruleApplied.section}
-        </p>
+        </div>
       ) : null}
       {ruleApplied.quoted_rule ? (
-        <blockquote className="border-l-4 border-neutral-400 pl-4 text-sm italic text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
-          “{ruleApplied.quoted_rule}”
-          <footer className="mt-2 text-[11px] not-italic uppercase tracking-wide text-neutral-500">
+        <blockquote
+          className="mx-[18px] mb-[18px] mt-3 italic"
+          style={{
+            borderLeft: `3px solid ${verdictColor}`,
+            paddingLeft: 16,
+            fontSize: 13,
+            color: "var(--fg2)",
+            lineHeight: 1.7,
+          }}
+        >
+          &ldquo;{ruleApplied.quoted_rule}&rdquo;
+          <footer
+            className="mt-2 font-mono uppercase"
+            style={{
+              fontSize: 10,
+              fontStyle: "normal",
+              letterSpacing: "0.06em",
+              color: "var(--fg3)",
+            }}
+          >
             — IFAB Laws of the Game, {ruleApplied.law_number}
           </footer>
         </blockquote>
@@ -186,16 +345,42 @@ function RuleAppliedSection({
   );
 }
 
-function ReasoningSection({ reasoning }: { reasoning: string[] }) {
+function ReasoningSection({
+  reasoning,
+  verdictColor,
+}: {
+  reasoning: string[];
+  verdictColor: string;
+}) {
   if (!reasoning || reasoning.length === 0) return null;
   return (
     <div>
-      <h3 className="mb-2 text-sm font-medium uppercase tracking-wide text-neutral-500">
-        Reasoning
-      </h3>
-      <ol className="list-decimal space-y-1.5 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+      <SectionLabel>Reasoning</SectionLabel>
+      <ol className="flex list-none flex-col gap-2 p-0">
         {reasoning.map((step, i) => (
-          <li key={i}>{step}</li>
+          <li key={i} className="flex items-start gap-3">
+            <span
+              className="font-barlow"
+              style={{
+                fontWeight: 900,
+                fontSize: 13,
+                color: verdictColor,
+                minWidth: 22,
+                letterSpacing: "0.04em",
+              }}
+            >
+              {i + 1}.
+            </span>
+            <span
+              style={{
+                fontSize: 13,
+                color: "var(--fg2)",
+                lineHeight: 1.6,
+              }}
+            >
+              {step}
+            </span>
+          </li>
         ))}
       </ol>
     </div>
@@ -205,74 +390,122 @@ function ReasoningSection({ reasoning }: { reasoning: string[] }) {
 function EvidenceSection({ evidence }: { evidence: EvidenceQuality }) {
   const flags: { key: keyof EvidenceQuality; label: string }[] = [
     { key: "key_moment_visible", label: "Key moment visible" },
-    { key: "ball_visible_when_needed", label: "Ball visible when needed" },
-    { key: "players_visible_when_needed", label: "Players visible when needed" },
-    { key: "field_lines_visible_when_needed", label: "Field lines visible when needed" },
+    { key: "ball_visible_when_needed", label: "Ball visible" },
+    { key: "players_visible_when_needed", label: "Players visible" },
+    { key: "field_lines_visible_when_needed", label: "Field lines visible" },
     { key: "frame_rate_adequate", label: "Frame rate adequate" },
   ];
 
   const issues = evidence.issues ?? [];
   const missingContext = evidence.required_context_missing ?? [];
+  const cameraColor = CAMERA_COLOR[evidence.camera_angle];
 
   return (
     <div>
-      <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-neutral-500">
-        Evidence quality
-      </h3>
+      <SectionLabel>Evidence Quality</SectionLabel>
 
-      <div className="mb-3 flex items-center gap-2 text-sm">
+      <div className="mb-3.5 flex items-center gap-2.5">
         <span
           aria-hidden
-          className={`inline-block h-2.5 w-2.5 rounded-full ${CAMERA_ANGLE_DOT[evidence.camera_angle]}`}
+          className="inline-block h-2.5 w-2.5 rounded-full"
+          style={{
+            background: cameraColor,
+            boxShadow: `0 0 6px ${cameraColor}`,
+          }}
         />
-        <span className="text-neutral-700 dark:text-neutral-300">
-          Camera angle: <span className="font-medium">{evidence.camera_angle}</span>
+        <span style={{ fontSize: 13, color: "var(--fg2)" }}>
+          Camera angle:{" "}
+          <strong style={{ color: "var(--fg)" }}>
+            {evidence.camera_angle}
+          </strong>
         </span>
       </div>
 
-      <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-2">
         {flags.map(({ key, label }) => {
           const ok = Boolean(evidence[key]);
           return (
-            <li
-              key={key}
-              className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300"
-            >
+            <div key={key} className="flex items-center gap-2">
               <span
-                aria-label={ok ? "yes" : "no"}
-                className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold text-white ${
-                  ok ? "bg-emerald-500" : "bg-neutral-400 dark:bg-neutral-600"
-                }`}
+                className="inline-flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-full"
+                style={{
+                  background: ok ? "var(--green)" : "var(--bg3)",
+                  border: ok ? "none" : "1px solid var(--border2)",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: ok ? "#fff" : "var(--fg3)",
+                }}
               >
                 {ok ? "✓" : "✗"}
               </span>
-              <span>{label}</span>
-            </li>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: ok ? "var(--fg2)" : "var(--fg3)",
+                }}
+              >
+                {label}
+              </span>
+            </div>
           );
         })}
-      </ul>
+      </div>
 
       {issues.length > 0 ? (
-        <div className="mt-4">
-          <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
+        <div className="mt-3.5">
+          <div
+            className="mb-1.5 font-barlow uppercase"
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              color: "var(--fg3)",
+            }}
+          >
             Issues
-          </h4>
-          <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          </div>
+          <ul className="flex list-none flex-col gap-1 p-0">
             {issues.map((issue, i) => (
-              <li key={i}>{issue}</li>
+              <li
+                key={i}
+                className="flex items-start gap-1.5"
+                style={{ fontSize: 12, color: "var(--red)" }}
+              >
+                <span>—</span>
+                <span>{issue}</span>
+              </li>
             ))}
           </ul>
         </div>
       ) : null}
 
       {missingContext.length > 0 ? (
-        <div className="mt-4">
-          <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
+        <div className="mt-3.5">
+          <div
+            className="mb-1.5 font-barlow uppercase"
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              color: "var(--fg3)",
+            }}
+          >
             Required context missing
-          </h4>
-          <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          </div>
+          <ul className="flex list-none flex-col gap-1 p-0">
             {missingContext.map((item, i) => (
-              <li key={i}>{item}</li>
+              <li
+                key={i}
+                className="flex items-start gap-2"
+                style={{
+                  fontSize: 12,
+                  color: "var(--fg3)",
+                  lineHeight: 1.5,
+                }}
+              >
+                <span style={{ color: "var(--border2)" }}>›</span>
+                <span>{item}</span>
+              </li>
             ))}
           </ul>
         </div>
@@ -285,12 +518,21 @@ function LimitationsSection({ limitations }: { limitations: string[] }) {
   if (!limitations || limitations.length === 0) return null;
   return (
     <div>
-      <h3 className="mb-2 text-sm font-medium uppercase tracking-wide text-neutral-500">
-        Limitations
-      </h3>
-      <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+      <SectionLabel>Limitations</SectionLabel>
+      <ul className="flex list-none flex-col gap-1 p-0">
         {limitations.map((item, i) => (
-          <li key={i}>{item}</li>
+          <li
+            key={i}
+            className="flex items-start gap-2"
+            style={{
+              fontSize: 12,
+              color: "var(--fg3)",
+              lineHeight: 1.5,
+            }}
+          >
+            <span style={{ color: "var(--border2)", flexShrink: 0 }}>›</span>
+            <span>{item}</span>
+          </li>
         ))}
       </ul>
     </div>
@@ -299,7 +541,17 @@ function LimitationsSection({ limitations }: { limitations: string[] }) {
 
 function Note({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-md bg-blue-50 p-3 text-sm text-blue-900 dark:bg-blue-900/20 dark:text-blue-200">
+    <p
+      className="rounded-lg"
+      style={{
+        background: "oklch(65% 0.2 255 / 0.08)",
+        border: "1px solid oklch(65% 0.2 255 / 0.25)",
+        padding: "10px 14px",
+        fontSize: 12,
+        color: "oklch(75% 0.15 255)",
+        lineHeight: 1.5,
+      }}
+    >
       {children}
     </p>
   );
