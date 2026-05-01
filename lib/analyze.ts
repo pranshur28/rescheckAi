@@ -12,6 +12,7 @@ import {
 } from "./gemini/upload.ts";
 import { runPass1 } from "./gemini/pass1.ts";
 import { runPass2 } from "./gemini/pass2.ts";
+import { PROMPT_VERSION } from "./gemini/prompts.ts";
 import { retrieve } from "./retrieval/index.ts";
 import { applyValidation, shortCircuitInconclusive } from "./validation.ts";
 import { deriveReviewMode } from "./confidence.ts";
@@ -63,7 +64,7 @@ export async function analyzeUploadedClip(
         keyMomentTimestamp,
       }),
       flags: ["short-circuit:not-soccer"],
-      promptVersion: "p1.0.0",
+      promptVersion: PROMPT_VERSION,
     };
   }
 
@@ -81,7 +82,7 @@ export async function analyzeUploadedClip(
         keyMomentTimestamp,
       }),
       flags: [`short-circuit:${incidentType}`],
-      promptVersion: "p1.0.0",
+      promptVersion: PROMPT_VERSION,
     };
   }
 
@@ -99,7 +100,7 @@ export async function analyzeUploadedClip(
         keyMomentTimestamp,
       }),
       flags: ["short-circuit:no-law-mapping"],
-      promptVersion: "p1.0.0",
+      promptVersion: PROMPT_VERSION,
     };
   }
 
@@ -128,7 +129,7 @@ export async function analyzeUploadedClip(
     originalDecision: req.originalDecision,
   });
 
-  return { response, flags, promptVersion: "p1.0.0" };
+  return { response, flags, promptVersion: PROMPT_VERSION };
 }
 
 export async function analyze(req: AnalyzeRequest): Promise<AnalyzeOutcome> {
