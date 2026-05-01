@@ -196,32 +196,32 @@ export const PASS_2_FEW_SHOTS: Record<IncidentType, FewShotExample | null> = {
   },
   penalty_kick: {
     incident:
-      "Goalkeeper steps off the goal line before the ball is kicked and saves the penalty; referee orders a retake.",
+      "Defender handles a cross inside the penalty area with an arm held away from the body; referee awards a penalty kick.",
     output: {
       is_soccer_clip: true,
       detected_incident_type: "penalty_kick",
-      original_referee_decision: "no_penalty_awarded",
+      original_referee_decision: "penalty_awarded",
       review_mode: "call_review",
       verdict: "correct_call",
       confidence: "high",
-      key_moment_timestamp: "0:06",
+      key_moment_timestamp: "0:05",
       what_happened:
-        "The goalkeeper has both feet clearly off the goal line at the moment the ball is kicked, then saves the penalty.",
+        "A defender's arm is held away from the body and blocks a cross inside the penalty area.",
       retrieval_source: "vertex",
       rule_applied: {
         law_number: "Law 14",
         law_title: "The Penalty Kick",
-        section: "Procedure",
-        retrieved_chunk_ids: ["law-14-procedure-kick-completion"],
+        section: "The Penalty Kick",
+        retrieved_chunk_ids: ["law-14-penalty-kick-award"],
         quoted_rule:
-          "When the ball is kicked, the defending goalkeeper must have at least part of one foot touching, in line with, or behind, the goal line.",
+          "A penalty kick is awarded if a player commits a direct free kick offence inside their penalty area or off the field as part of play as outlined in Laws 12 and 13.",
       },
       reasoning: [
-        "Identify incident: a saved penalty kick where the goalkeeper moved before the ball was kicked.",
-        "Identify rule: Law 14 requires the goalkeeper to keep at least part of one foot touching, in line with, or behind, the goal line until the ball is kicked.",
-        "Visible evidence: at the frame the kicker contacts the ball, both of the goalkeeper's feet are clearly forward of the goal line.",
-        "Compare to rule: the goalkeeper's encroachment is an offence; if the kick is missed or saved, the kick is retaken.",
-        "Compare to original decision: ordering a retake matches what the rule prescribes.",
+        "Identify incident: a defender handles the ball inside their own penalty area.",
+        "Identify rule: Law 14 awards a penalty kick when a player commits a direct-free-kick offence inside their own penalty area.",
+        "Visible evidence: the defender's arm is away from the body and blocks the cross inside the box.",
+        "Compare to rule: the handball offence is committed inside the penalty area, so the restart is a penalty kick.",
+        "Compare to original decision: awarding a penalty kick matches what the rule prescribes.",
       ],
       evidence_quality: {
         camera_angle: "clear",
