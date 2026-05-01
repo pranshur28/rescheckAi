@@ -3,7 +3,7 @@
 // Single client component that owns the upload + form state and renders the
 // VerdictCard once /api/analyze returns.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { DEMO_PRESETS } from "@/lib/demoPresets";
 import {
@@ -21,6 +21,11 @@ type AnalyzeStatus = "idle" | "submitting" | "succeeded" | "failed";
 
 const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "";
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "";
+const DEMO_MODE_DEFAULT = process.env.NEXT_PUBLIC_DEMO_MODE_DEFAULT === "1";
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default function AnalyzeApp() {
   const [clipUrl, setClipUrl] = useState<string>("");
@@ -32,8 +37,18 @@ export default function AnalyzeApp() {
   const [status, setStatus] = useState<AnalyzeStatus>("idle");
   const [result, setResult] = useState<VerdictResponse | null>(null);
   const [error, setError] = useState<string>("");
+  const [isDemoModeQuery, setIsDemoModeQuery] = useState(false);
+  const [selectedDemoPresetId, setSelectedDemoPresetId] = useState<string | null>(null);
+  const [isDemoResponse, setIsDemoResponse] = useState(false);
 
   const cloudinaryConfigured = Boolean(UPLOAD_PRESET && CLOUD_NAME);
+  const isDemoMode = isDemoModeQuery || DEMO_MODE_DEFAULT;
+
+  useEffect(() => {
+    setIsDemoModeQuery(
+      new URLSearchParams(window.location.search).get("demo") === "1",
+    );
+  }, []);
 
   function loadPreset(presetId: string) {
     const preset = DEMO_PRESETS.find((p) => p.id === presetId);
@@ -41,6 +56,8 @@ export default function AnalyzeApp() {
     setClipUrl(preset.cloudinaryUrl);
     setOriginalDecision(preset.originalDecision);
     setIncidentType(preset.incidentType);
+    setSelectedDemoPresetId(preset.id);
+    setIsDemoResponse(false);
     setResult(null);
     setError("");
     setStatus("idle");
@@ -51,9 +68,33 @@ export default function AnalyzeApp() {
       setError("Upload a clip or load a demo preset first.");
       return;
     }
+
     setStatus("submitting");
     setError("");
     setResult(null);
+    setIsDemoResponse(false);
+
+    if (isDemoMode && selectedDemoPresetId) {
+      try {
+        const resp = await fetch(`/demo-responses/${selectedDemoPresetId}.json`);
+        if (!resp.ok) {
+          setStatus("failed");
+          setError(`Demo response not found (${resp.status})`);
+          return;
+        }
+
+        const json = (await resp.json()) as VerdictResponse;
+        await sleep(1500);
+        setResult(json);
+        setStatus("succeeded");
+        setIsDemoResponse(true);
+        return;
+      } catch (err) {
+        setStatus("failed");
+        setError((err as Error).message);
+        return;
+      }
+    }
 
     try {
       const resp = await fetch("/api/analyze", {
@@ -76,6 +117,7 @@ export default function AnalyzeApp() {
       }
       setResult(json as VerdictResponse);
       setStatus("succeeded");
+      setIsDemoResponse(false);
     } catch (err) {
       setStatus("failed");
       setError((err as Error).message);
@@ -149,7 +191,10 @@ export default function AnalyzeApp() {
                 "secure_url" in result.info
               ) {
                 const info = result.info as { secure_url?: string };
-                if (info.secure_url) setClipUrl(info.secure_url);
+                if (info.secure_url) {
+                  setClipUrl(info.secure_url);
+                  setSelectedDemoPresetId(null);
+                }
               }
             }}
           >
@@ -193,9 +238,10 @@ export default function AnalyzeApp() {
             </span>
             <select
               value={originalDecision}
-              onChange={(e) =>
-                setOriginalDecision(e.target.value as OriginalRefereeDecision)
-              }
+              onChange={(e) => {
+                setOriginalDecision(e.target.value as OriginalRefereeDecision);
+                setSelectedDemoPresetId(null);
+              }}
               className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
             >
               {ORIGINAL_DECISION_OPTIONS.map((opt) => (
@@ -210,11 +256,12 @@ export default function AnalyzeApp() {
             <span className="mb-1 block font-medium">Incident type</span>
             <select
               value={incidentType}
-              onChange={(e) =>
+              onChange={(e) => {
                 setIncidentType(
                   e.target.value as IncidentType | "auto_detect",
-                )
-              }
+                );
+                setSelectedDemoPresetId(null);
+              }}
               className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
             >
               {INCIDENT_TYPE_OPTIONS.map((opt) => (
@@ -252,7 +299,16 @@ export default function AnalyzeApp() {
         ) : null}
       </section>
 
-      {result ? <VerdictCard response={result} /> : null}
+      {result ? (
+        <>
+          {isDemoResponse ? (
+            <div className="mb-4 inline-flex rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:border-amber-500/40 dark:bg-amber-900/20 dark:text-amber-200">
+              Demo mode (cached)
+            </div>
+          ) : null}
+          <VerdictCard response={result} />
+        </>
+      ) : null}
     </main>
   );
 }
