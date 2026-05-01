@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "spike:gemini-video": "node scripts/spike/gemini-video.ts"
   },
   "dependencies": {
     "@google/genai": "^1.0.0",
