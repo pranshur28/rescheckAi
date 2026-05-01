@@ -33,8 +33,8 @@ const CAMERA_ANGLE_DOT: Record<EvidenceQuality["camera_angle"], string> = {
 };
 
 const RETRIEVAL_BADGE_COPY: Partial<Record<RetrievalSource, string>> = {
-  vertex: "Vertex RAG",
-  fallback: "Static rule store",
+  vertex: "IFAB Laws of the Game (vector)",
+  fallback: "IFAB Laws of the Game",
 };
 
 export default function VerdictCard({ response }: { response: VerdictResponse }) {

@@ -1,8 +1,8 @@
 // Public entry point for retrieval.
 // Tries Vertex first; on any failure, falls back to the local static JSON.
-// Logs the failure reason so we can tell from production logs whether Vertex
-// is consistently broken (in which case promote fallback to primary, per
-// PRD §16 ship-or-cut #9).
+// If RAG_CORPUS_ID is unset we skip the Vertex attempt entirely — that env
+// var is the smoke signal that corpus prep hasn't been run, so trying and
+// catching every request just spams the logs with the same warning.
 
 import { retrieveFromVertex } from "./vertex.ts";
 import { retrieveFromFallback } from "./fallback.ts";
@@ -15,6 +15,15 @@ export interface RetrieveOpts {
   forceFallback?: boolean;
 }
 
+function vertexConfigured(): boolean {
+  return Boolean(
+    process.env.GOOGLE_CLOUD_PROJECT &&
+      process.env.VERTEX_LOCATION &&
+      process.env.RAG_CORPUS_ID &&
+      process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+  );
+}
+
 export async function retrieve(
   lawNumber: string,
   queryText: string,
@@ -22,7 +31,7 @@ export async function retrieve(
 ): Promise<RetrievalResult> {
   const topK = opts.topK ?? 5;
 
-  if (opts.forceFallback) {
+  if (opts.forceFallback || !vertexConfigured()) {
     return retrieveFromFallback(lawNumber, topK, queryText);
   }
 
