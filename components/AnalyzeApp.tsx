@@ -1,9 +1,7 @@
 "use client";
 
-// Single client component that owns the upload + form state for Hour 4
-// (Cloudinary upload, video preview) and Hour 7 (decision + incident form,
-// demo preset buttons). The verdict card UI is Hour 6 — this component
-// currently renders the API response as a JSON block.
+// Single client component that owns the upload + form state and renders the
+// VerdictCard once /api/analyze returns.
 
 import { useState } from "react";
 import { CldUploadWidget } from "next-cloudinary";
@@ -12,7 +10,12 @@ import {
   ORIGINAL_DECISION_OPTIONS,
   INCIDENT_TYPE_OPTIONS,
 } from "@/lib/formOptions";
-import type { IncidentType, OriginalRefereeDecision } from "@/lib/types";
+import type {
+  IncidentType,
+  OriginalRefereeDecision,
+  VerdictResponse,
+} from "@/lib/types";
+import VerdictCard from "@/components/VerdictCard";
 
 type AnalyzeStatus = "idle" | "submitting" | "succeeded" | "failed";
 
@@ -27,7 +30,7 @@ export default function AnalyzeApp() {
     "auto_detect",
   );
   const [status, setStatus] = useState<AnalyzeStatus>("idle");
-  const [result, setResult] = useState<unknown>(null);
+  const [result, setResult] = useState<VerdictResponse | null>(null);
   const [error, setError] = useState<string>("");
 
   const cloudinaryConfigured = Boolean(UPLOAD_PRESET && CLOUD_NAME);
@@ -71,7 +74,7 @@ export default function AnalyzeApp() {
         );
         return;
       }
-      setResult(json);
+      setResult(json as VerdictResponse);
       setStatus("succeeded");
     } catch (err) {
       setStatus("failed");
@@ -249,20 +252,7 @@ export default function AnalyzeApp() {
         ) : null}
       </section>
 
-      {/* Result placeholder — verdict card UI is Hour 6 */}
-      {result ? (
-        <section className="rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-neutral-500">
-            Result
-          </h2>
-          <p className="mb-3 text-xs text-neutral-500">
-            Verdict card UI lands in Hour 6. Raw response below.
-          </p>
-          <pre className="overflow-x-auto rounded-md bg-neutral-100 p-4 text-xs dark:bg-neutral-900">
-            {JSON.stringify(result, null, 2)}
-          </pre>
-        </section>
-      ) : null}
+      {result ? <VerdictCard response={result} /> : null}
     </main>
   );
 }
