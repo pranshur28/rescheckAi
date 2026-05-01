@@ -65,3 +65,42 @@ test("retrieveFromFallback returns empty for unmatched law", () => {
   const r = retrieveFromFallback("Law 99", 5);
   assert.equal(r.chunks.length, 0);
 });
+
+// Integration: exercise the real curated corpus from data/ifab-rules-fallback.json.
+// This proves the file shipped with the PR loads, parses, and produces the
+// chunks the validation pipeline expects. Without this, an empty Vertex
+// law-to-file-id.json followed by a malformed fallback file would crash the
+// API at runtime even though all unit tests pass.
+test("retrieveFromFallback loads real curated corpus from disk", () => {
+  // null clears the test cache so loadFallback() reads the real JSON file.
+  _setFallbackCacheForTesting(null);
+
+  // Spot-check each of the 8 supported laws returns at least one chunk
+  // with non-stub content. Iterate so a missing law fails the test loudly.
+  const supportedLaws = [
+    "Law 9",
+    "Law 11",
+    "Law 12",
+    "Law 13",
+    "Law 14",
+    "Law 15",
+    "Law 16",
+    "Law 17",
+  ];
+  for (const lawNumber of supportedLaws) {
+    const r = retrieveFromFallback(lawNumber, 5, "");
+    assert.ok(r.chunks.length > 0, `${lawNumber} produced no chunks from real corpus`);
+    for (const chunk of r.chunks) {
+      assert.equal(chunk.law_number, lawNumber);
+      assert.ok(chunk.text.length > 0, `${chunk.id} has empty text`);
+      assert.ok(
+        !chunk.text.includes("STUB CONTENT"),
+        `${chunk.id} still has STUB CONTENT — fallback not curated`,
+      );
+      assert.ok(
+        !chunk.id.startsWith("STUB-"),
+        `${chunk.id} still has STUB- prefix`,
+      );
+    }
+  }
+});

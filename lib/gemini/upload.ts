@@ -10,6 +10,12 @@ const POLL_INTERVAL_MS = 2_000;
 // fail fast and fall back to a cached demo response than starve the rest of
 // the pipeline.
 const POLL_TIMEOUT_MS = 30_000;
+// Hard cap on the byte size we'll buffer into memory before handing off to
+// the Gemini File API. PRD §7 caps user uploads at 30s; even high-bitrate
+// 30s clips comfortably fit under 25 MB. A misconfigured Cloudinary preset
+// or a long demo clip could push past this; better to fail with a clear
+// error than OOM the Netlify Function.
+const MAX_VIDEO_BYTES = 25 * 1024 * 1024;
 
 export interface UploadedClip {
   name: string;
@@ -25,7 +31,22 @@ export async function uploadCloudinaryToGemini(
   if (!resp.ok) {
     throw new Error(`Failed to fetch Cloudinary URL (${resp.status}): ${cloudinaryUrl}`);
   }
+  // Size guard before buffering. Cloudinary returns Content-Length on video
+  // delivery URLs; if it's missing we fall through to the streaming check
+  // below.
+  const declaredLength = Number(resp.headers.get("content-length") ?? 0);
+  if (declaredLength && declaredLength > MAX_VIDEO_BYTES) {
+    throw new Error(
+      `Video is too large (${declaredLength} bytes). Please upload a shorter clip.`,
+    );
+  }
   const arrayBuffer = await resp.arrayBuffer();
+  // Defensive check in case Content-Length was absent or wrong.
+  if (arrayBuffer.byteLength > MAX_VIDEO_BYTES) {
+    throw new Error(
+      `Video is too large (${arrayBuffer.byteLength} bytes). Please upload a shorter clip.`,
+    );
+  }
   // Blob is supported in @google/genai's Node upload path; lets us avoid a
   // /tmp file write inside the Netlify Function.
   const blob = new Blob([arrayBuffer], { type: "video/mp4" });

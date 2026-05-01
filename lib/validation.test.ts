@@ -1,5 +1,4 @@
-// Run with: node --test lib/**/*.test.ts
-// Node 24 strips types natively.
+// Run with: npm test
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
