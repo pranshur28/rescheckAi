@@ -7,8 +7,10 @@
 
 [functions]
   node_bundler = "esbuild"
-
-# Pin functions close to Vertex region to reduce retrieval round-trip.
-# Override via NETLIFY_FUNCTIONS_REGION env var when needed.
-[functions."analyze"]
-  included_files = ["data/law-to-file-id.json", "data/ifab-rules-fallback.json"]
+  # `included_files` at the global function scope applies to every generated
+  # function. The Next-on-Netlify plugin emits its own internal function name
+  # (e.g. `___netlify-server-handler`) rather than literal route names like
+  # "analyze", so per-function targeting by route name is unreliable.
+  # Globbing data/ here guarantees the JSON files ship into every function's
+  # bundle and are reachable via fs.readFileSync(join(process.cwd(), "data", ...)).
+  included_files = ["data/*.json"]

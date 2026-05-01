@@ -1,0 +1,3 @@
+{
+  "_comment": "STUB. Empty until scripts/python/prep_corpus.py ingest writes the real map. While empty, every Vertex retrieval throws 'No Vertex file ID mapped for Law N', which lib/retrieval/index.ts catches and routes to the fallback path."
+}
