@@ -81,6 +81,58 @@ export async function uploadCloudinaryToGemini(
   };
 }
 
+// Eval-only path. Reads a local clip into memory and uploads to Gemini File
+// API directly, bypassing Cloudinary so the eval script doesn't touch the
+// team's Cloudinary quota. Same poll/timeout/size guards as the Cloudinary
+// path — keeps both routes converged on identical post-upload state.
+export async function uploadLocalToGemini(
+  ai: GoogleGenAI,
+  filePath: string,
+): Promise<UploadedClip> {
+  const { readFile, stat } = await import("node:fs/promises");
+
+  const stats = await stat(filePath);
+  if (stats.size > MAX_VIDEO_BYTES) {
+    throw new Error(
+      `Local video ${filePath} is too large (${stats.size} bytes). Use a shorter clip.`,
+    );
+  }
+
+  const buffer = await readFile(filePath);
+  const mimeType = filePath.endsWith(".mov")
+    ? "video/quicktime"
+    : filePath.endsWith(".webm")
+      ? "video/webm"
+      : "video/mp4";
+  const blob = new Blob([buffer], { type: mimeType });
+
+  const uploaded = await ai.files.upload({ file: blob, config: { mimeType } });
+  if (!uploaded.name) throw new Error("Gemini upload returned no file name");
+
+  const start = Date.now();
+  let current = uploaded;
+  while (current.state === "PROCESSING") {
+    if (Date.now() - start > POLL_TIMEOUT_MS) {
+      throw new Error(`Timeout waiting for Gemini file ${current.name} to become ACTIVE`);
+    }
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+    current = await ai.files.get({ name: current.name as string });
+  }
+
+  if (current.state === "FAILED") {
+    throw new Error(`Gemini file processing FAILED: ${current.name}`);
+  }
+  if (!current.uri || !current.mimeType) {
+    throw new Error(`Gemini file ready but missing uri/mimeType: ${current.name}`);
+  }
+
+  return {
+    name: current.name as string,
+    uri: current.uri,
+    mimeType: current.mimeType,
+  };
+}
+
 export async function deleteUploaded(ai: GoogleGenAI, name: string): Promise<void> {
   try {
     await ai.files.delete({ name });
